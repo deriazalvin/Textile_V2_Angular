@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Commandes en retard', 'retard', ~{::main},
+                'Livraisons dépassées')}">
+<body>
+<main class="stack">
+
+    <div class="page-head">
+        <div>
+            <h2 class="page-head__title">Commandes en retard</h2>
+            <p class="page-head__sub"
+               th:text="${#lists.size(commandesRetard)} + ' commande(s) susceptible(s) d’être livrée(s) en retard'">
+                0 commande(s)
+            </p>
+        </div>
+        <div class="page-head__actions">
+            <a class="btn btn--ghost" th:href="@{/commandes}">Toutes les commandes</a>
+        </div>
+    </div>
+
+    <!-- Aucun retard -->
+    <div th:if="${#lists.isEmpty(commandesRetard)}"
+         th:replace="~{fragments/pagination :: vide('Aucun retard',
+                'Toutes les dates de livraison prévues sont respectées.')}"></div>
+
+    <div class="table-wrap" th:unless="${#lists.isEmpty(commandesRetard)}">
+        <div class="table-scroll">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Numéro</th>
+                    <th scope="col">Client</th>
+                    <th scope="col">Priorité</th>
+                    <th scope="col">Statut</th>
+                    <th scope="col">Livraison prévue</th>
+                    <th scope="col">Retard</th>
+                    <th scope="col">Étape courante</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${commandesRetard}" class="is-alert">
+                    <td><a class="link cell-mono" th:href="@{'/commandes/' + ${c.id}}" th:text="${c.numero}">CMD</a></td>
+                    <td class="cell-primary" th:text="${c.clientNom}">Client</td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${c.priorite.badgeClass}"
+                              th:text="${c.priorite}">NORMALE</span>
+                    </td>
+                    <td><span class="badge badge--info" th:text="${c.statut}">STATUT</span></td>
+                    <td class="tabular" th:text="${#temporals.format(c.dateLivraisonPrevue, 'dd/MM/yyyy')}">date</td>
+                    <td><span class="badge badge--danger" th:text="'+' + ${c.retardJours} + ' j'">+0 j</span></td>
+                    <td class="text-muted" th:text="${c.etapeCourante} ?: 'Terminée'">-</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

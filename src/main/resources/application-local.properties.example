@@ -1,0 +1,11 @@
+# ------------------------------------------------------------------
+# Template a copier : cp application-local.properties.example \
+#                     application-local.properties
+# Puis renseignez vos identifiants. Le fichier copie est ignore par git.
+# ------------------------------------------------------------------
+spring.datasource.url=jdbc:mariadb://localhost:3306/textile?useSSL=false&serverTimezone=UTC
+spring.datasource.driver-class-name=org.mariadb.jdbc.Driver
+spring.datasource.username=root
+spring.datasource.password=VOTRE_MOT_DE_PASSE_ICI
+
+spring.jpa.database-platform=org.hibernate.dialect.MariaDBDialect

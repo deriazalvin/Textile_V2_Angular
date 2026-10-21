@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Contrôle qualité', 'commandes', ~{::main},
+                'Commande ' + ${commande.numero})}">
+<body>
+<main class="stack">
+    <div class="page-head">
+        <div>
+            <h2 class="page-head__title">Contrôle qualité</h2>
+            <p class="page-head__sub">
+                Commande <span class="cell-mono" th:text="${commande.numero}">CMD</span>
+                · étape obligatoire avant toute livraison
+            </p>
+        </div>
+    </div>
+
+    <section class="card">
+        <div class="card__body">
+            <div class="kv">
+                <div class="kv__item">
+                    <span class="kv__label">Client</span>
+                    <span class="kv__value" th:text="${commande.clientNom}">Client</span>
+                </div>
+                <div class="kv__item">
+                    <span class="kv__label">Quantité à contrôler</span>
+                    <span class="kv__value tabular" th:text="${commande.quantiteProduiteTotale}">0</span>
+                </div>
+                <div class="kv__item">
+                    <span class="kv__label">Quantité commandée</span>
+                    <span class="kv__value tabular" th:text="${commande.quantiteTotale}">0</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contrôle déjà réalisé -->
+    <div class="alert" th:if="${commande.controleQualite != null}" role="status"
+         th:classappend="${commande.controleQualite.resultat.alertClass}">
+        <svg class="alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+        </svg>
+        <span>
+            Un contrôle a déjà été réalisé :
+            <strong th:text="${commande.controleQualite.resultat}">CONFORME</strong>
+            le <span th:text="${#temporals.format(commande.controleQualite.dateControle, 'dd/MM/yyyy HH:mm')}"></span>.
+        </span>
+    </div>
+
+    <!-- Formulaire -->
+    <form class="form-card" method="post" th:unless="${commande.controleQualite != null}"
+          th:action="@{'/commandes/' + ${commande.id} + '/qualite'}">
+        <fieldset>
+            <legend class="field__label" style="margin-bottom:var(--space-3)">Résultat du contrôle</legend>
+
+            <div class="row" style="gap:var(--space-5);margin-bottom:var(--space-5)">
+                <label class="checkbox checkbox--radio" for="resultat-conforme">
+                    <input type="radio" id="resultat-conforme" name="resultat" value="CONFORME" checked>
+                    <span>
+                        <span class="badge badge--success">CONFORME</span>
+                        <span class="field__hint" style="display:block">La commande peut être livrée</span>
+                    </span>
+                </label>
+
+                <label class="checkbox checkbox--radio" for="resultat-nonconforme">
+                    <input type="radio" id="resultat-nonconforme" name="resultat" value="NON_CONFORME">
+                    <span>
+                        <span class="badge badge--danger">NON CONFORME</span>
+                        <span class="field__hint" style="display:block">Livraison bloquée</span>
+                    </span>
+                </label>
+            </div>
+        </fieldset>
+
+        <div class="field">
+            <label class="field__label" for="observations">Observations</label>
+            <textarea class="textarea" id="observations" name="observations" maxlength="800"
+                      placeholder="Qualité des coutures, finitions, mesures…"></textarea>
+        </div>
+
+        <div class="field">
+            <label class="field__label" for="pointsNonConformites">Points de non conformité</label>
+            <textarea class="textarea" id="pointsNonConformites" name="pointsNonConformites" maxlength="500"
+                      placeholder="12 pièces avec défaut de couture…"></textarea>
+            <p class="field__hint">À renseigner en priorité si le résultat est NON CONFORME.</p>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn--primary">Enregistrer le contrôle</button>
+            <a class="btn btn--ghost" th:href="@{'/commandes/' + ${commande.id} + '/production'}">Annuler</a>
+        </div>
+    </form>
+
+    <p class="footer-note">
+        <a class="link" th:href="@{'/commandes/' + ${commande.id} + '/production'}">← Retour au suivi de production</a>
+    </p>
+</main>
+</body>
+</html>

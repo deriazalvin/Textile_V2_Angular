@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Production ' + ${commande.numero}, 'commandes', ~{::main},
+                'Suivi étape par étape du workflow')}">
+<body>
+<main class="stack">
+
+    <div class="page-head">
+        <div>
+            <h2 class="page-head__title cell-mono" th:text="${commande.numero}">CMD</h2>
+            <p class="page-head__sub" th:text="${commande.clientNom}">Client</p>
+        </div>
+        <div class="page-head__actions">
+            <a class="btn btn--ghost" th:href="@{'/commandes/' + ${commande.id}}">Détail de la commande</a>
+            <a class="btn btn--secondary" th:href="@{'/commandes/' + ${commande.id} + '/qualite'}"
+               sec:authorize="hasAnyRole('ADMIN','MANAGER','OPERATOR')">Contrôle qualité</a>
+            <a class="btn btn--secondary" th:href="@{'/commandes/' + ${commande.id} + '/livraison'}"
+               sec:authorize="hasAnyRole('ADMIN','MANAGER','OPERATOR')">Livraison</a>
+        </div>
+    </div>
+
+    <!-- ============ Progression ============ -->
+    <section class="card">
+        <div class="card__body">
+            <div class="row row--between" style="margin-bottom:var(--space-3)">
+                <div class="row">
+                    <span class="badge badge--info" th:text="${commande.statut}">STATUT</span>
+                    <span class="badge badge--danger" th:if="${production.enRetard}"
+                          th:text="'Retard : ' + ${production.retardJours} + ' j'">Retard</span>
+                </div>
+                <div class="row">
+                    <span class="text-muted"
+                          th:text="${production.etapesTerminees} + ' / ' + ${production.etapesTotal} + ' étapes terminées'">0/6</span>
+                    <span class="badge badge--info"
+                          th:text="${production.avancementPourcentage} + ' %'">0 %</span>
+                </div>
+            </div>
+
+            <div class="meter__track" style="height:8px" role="img"
+                 th:aria-label="'Avancement global : ' + ${production.avancementPourcentage} + ' pour cent'">
+                <div class="meter__fill" th:style="'width:' + ${production.avancementPourcentage} + '%'"></div>
+            </div>
+
+            <div class="kv" style="margin-top:var(--space-4)">
+                <div class="kv__item">
+                    <span class="kv__label">Étape courante</span>
+                    <span class="kv__value"
+                          th:text="${production.etapeCourante != null ? production.etapeCourante.libelle : 'Terminée'}">-</span>
+                </div>
+                <div class="kv__item">
+                    <span class="kv__label">Livraison prévue</span>
+                    <span class="kv__value"
+                          th:text="${#temporals.format(production.dateLivraisonPrevue, 'dd/MM/yyyy')}">-</span>
+                </div>
+                <div class="kv__item">
+                    <span class="kv__label">Quantité produite</span>
+                    <span class="kv__value tabular"
+                          th:text="${production.quantiteProduite} + ' / ' + ${production.quantiteCommandee}">0/0</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ Workflow visuel ============ -->
+    <section aria-label="Étapes du workflow">
+        <ol class="stepper">
+            <li class="stepper__step"
+                th:each="e, it : ${production.etapes}"
+                th:classappend="${e.statut.stepperClass}">
+
+                <span class="stepper__marker" aria-hidden="true" th:text="${it.index} + 1">1</span>
+
+                <span class="stepper__name" th:text="${e.typeLibelle}">Étape</span>
+
+                <span class="stepper__meta">
+                    <span th:text="${e.statut}">STATUT</span>
+                    <span th:if="${e.responsableNom != null}" th:text="${e.responsableNom}"></span>
+                    <span th:if="${e.dateDebut != null}"
+                          th:text="'Début ' + ${#temporals.format(e.dateDebut, 'dd/MM HH:mm')}"></span>
+                    <span th:if="${e.dateFinReelle != null}"
+                          th:text="'Fin ' + ${#temporals.format(e.dateFinReelle, 'dd/MM HH:mm')}"></span>
+                    <span th:text="'Quantité : ' + ${e.quantiteProduite}"></span>
+                </span>
+
+                <div class="stepper__actions" sec:authorize="hasAnyRole('ADMIN','MANAGER','OPERATOR')">
+
+                    <!-- Démarrer une étape : autorisée si la précédente est terminée -->
+                    <form class="inline-form" method="post"
+                          th:if="${e.statut.name() == 'NON_COMMENCEE'}"
+                          th:action="@{'/commandes/' + ${commande.id} + '/production/etapes/' + ${e.type} + '/demarrer'}">
+                        <button type="submit" class="btn btn--secondary btn--sm">Démarrer</button>
+                    </form>
+
+                    <!-- Clôturer une étape de transformation -->
+                    <a class="btn btn--primary btn--sm"
+                       th:if="${e.statut.name() == 'EN_COURS'
+                                 and e.type.name() != 'CONTROLE_QUALITE' and e.type.name() != 'LIVRAISON'}"
+                       th:href="@{'/commandes/' + ${commande.id} + '/production/etapes/' + ${e.type} + '/cloturer'}">
+                        Déclarer la production
+                    </a>
+
+                    <a class="btn btn--primary btn--sm"
+                       th:if="${e.type.name() == 'CONTROLE_QUALITE' and commande.controleQualite == null
+                                 and commande.statut.name() != 'LIVREE'}"
+                       th:href="@{'/commandes/' + ${commande.id} + '/qualite'}">
+                        Réaliser le contrôle
+                    </a>
+
+                    <a class="btn btn--primary btn--sm"
+                       th:if="${e.type.name() == 'LIVRAISON' and commande.statut.name() != 'LIVREE'}"
+                       th:href="@{'/commandes/' + ${commande.id} + '/livraison'}">
+                        Enregistrer la livraison
+                    </a>
+
+                    <span class="badge badge--muted"
+                          th:if="${e.statut.name() == 'EN_COURS'
+                                    and (e.type.name() == 'CONTROLE_QUALITE' or e.type.name() == 'LIVRAISON')}">
+                        Voir ci-dessous
+                    </span>
+                </div>
+            </li>
+        </ol>
+    </section>
+
+    <!-- ============ Lancement de la production ============ -->
+    <section class="card"
+             th:if="${commande.etapes.isEmpty()
+                       and commande.statut.name() != 'LIVREE' and commande.statut.name() != 'ANNULEE'}"
+             sec:authorize="hasAnyRole('ADMIN','MANAGER','OPERATOR')">
+        <div class="card__header">
+            <h3 class="card__title">Démarrer la production</h3>
+        </div>
+        <div class="card__body">
+            <p class="text-muted" style="margin-bottom:var(--space-4)">
+                Le lancement crée les six étapes du workflow, clôture l’étape
+                <strong>Commande</strong> et démarre la <strong>Coupe</strong>.
+            </p>
+            <form method="post" th:action="@{'/commandes/' + ${commande.id} + '/production/demarrer'}">
+                <div class="field">
+                    <label class="field__label" for="commentaire">Commentaire de lancement</label>
+                    <input class="input" type="text" id="commentaire" name="commentaire" maxlength="500"
+                           placeholder="Lancement des presses…">
+                </div>
+                <button type="submit" class="btn btn--primary btn--lg">Lancer la production</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- ============ Quantités ============ -->
+    <section class="card">
+        <div class="card__header">
+            <h3 class="card__title">Quantités par ligne</h3>
+            <span class="text-muted"
+                  th:text="${production.quantiteProduite} + ' produites sur ' + ${production.quantiteCommandee}">0/0</span>
+        </div>
+        <div class="table-scroll">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Produit</th>
+                    <th scope="col">Variante</th>
+                    <th scope="col" class="cell-num">Commandée</th>
+                    <th scope="col" class="cell-num">Produite</th>
+                    <th scope="col" class="cell-num">Restant</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="l : ${production.lignes}">
+                    <td>
+                        <div class="cell-primary cell-mono" th:text="${l.produitCode}">CODE</div>
+                        <div class="text-muted" th:text="${l.produitDesignation}">Désignation</div>
+                    </td>
+                    <td class="text-muted">
+                        <span th:if="${l.taille != null}" th:text="'Taille ' + ${l.taille}"></span>
+                        <span th:if="${l.couleur != null}" th:text="' · ' + ${l.couleur}"></span>
+                        <span th:if="${l.taille == null and l.couleur == null}">—</span>
+                    </td>
+                    <td class="cell-num tabular" th:text="${l.quantite}">0</td>
+                    <td class="cell-num tabular cell-primary" th:text="${l.quantiteProduite}">0</td>
+                    <td class="cell-num tabular text-muted" th:text="${l.quantiteRestante}">0</td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th scope="row" colspan="2">Total</th>
+                    <td class="cell-num tabular" th:text="${production.quantiteCommandee}">0</td>
+                    <td class="cell-num tabular" th:text="${production.quantiteProduite}">0</td>
+                    <td class="cell-num tabular"
+                        th:text="${production.quantiteCommandee - production.quantiteProduite}">0</td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </section>
+
+    <!-- ============ Contrôle qualité ============ -->
+    <div class="alert" th:if="${commande.controleQualite != null}"
+         th:classappend="${commande.controleQualite.resultat.alertClass}"
+         role="status">
+        <svg class="alert__icon" th:if="${commande.controleQualite.resultat.name() == 'CONFORME'}"
+             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+            <path d="M20 6 9 17l-5-5"/>
+        </svg>
+        <svg class="alert__icon" th:unless="${commande.controleQualite.resultat.name() == 'CONFORME'}"
+             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+            <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/>
+            <path d="M12 9v4M12 17h.01"/>
+        </svg>
+        <span>
+            <strong>Contrôle qualité :</strong> <span th:text="${commande.controleQualite.resultat}">CONFORME</span>
+            <span th:if="${commande.controleQualite.pointsNonConformites != null}"
+                  th:text="' — ' + ${commande.controleQualite.pointsNonConformites}"></span>
+        </span>
+    </div>
+</main>
+</body>
+</html>

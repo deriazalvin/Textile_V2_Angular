@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+  Pagination — lit "pageResponse" et "listUrl" dans le modèle.
+  Accessibilité : navigation avec aria-label, page courante annoncée.
+-->
+<nav class="pagination" th:fragment="pagination" th:if="${pageResponse != null}"
+     aria-label="Pagination de la liste">
+    <p class="pagination__info" aria-live="polite">
+        Page <strong th:text="${pageResponse.page + 1}">1</strong>
+        sur <strong th:text="${pageResponse.totalPages}">1</strong>
+        — <span th:text="${pageResponse.totalElements}">0</span> éléments
+    </p>
+
+    <div class="pagination__controls">
+        <a class="btn btn--secondary btn--sm" th:if="${!pageResponse.first}"
+           th:href="@{${listUrl}(page=${pageResponse.page - 1})}" rel="prev">Précédent</a>
+        <span class="pagination__page" th:text="${pageResponse.page + 1}" aria-current="page">1</span>
+        <a class="btn btn--secondary btn--sm" th:if="${!pageResponse.last}"
+           th:href="@{${listUrl}(page=${pageResponse.page + 1})}" rel="next">Suivant</a>
+    </div>
+</nav>
+
+<!-- État vide -->
+<div th:fragment="vide(titre, message)" class="empty">
+    <div class="empty__icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+        </svg>
+    </div>
+    <p class="empty__title" th:text="${titre}">Aucun résultat</p>
+    <p th:text="${message}">Modifiez vos filtres.</p>
+</div>
+
+</body>
+</html>

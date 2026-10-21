@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(${formTitle}, 'produits', ~{::main}, '')}">
+<body>
+<main class="stack">
+    <div class="page-head">
+        <div>
+            <h2 class="page-head__title" th:text="${formTitle}">Produit</h2>
+            <p class="page-head__sub">Les champs marqués d’un astérisque sont obligatoires.</p>
+        </div>
+    </div>
+
+    <div th:object="${produit}">
+        <div class="alert alert--error" th:if="${#fields.hasGlobalErrors()}" role="alert">
+            <svg class="alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+            </svg>
+            <span>
+                <span th:each="e, it : ${#fields.globalErrors()}">
+                    <span th:text="${e}">Erreur</span><span th:if="${!it.last}"> </span>
+                </span>
+            </span>
+        </div>
+    </div>
+
+    <form class="form-card" method="post" th:action="@{${formAction}}" th:object="${produit}" novalidate>
+        <fieldset>
+            <legend class="sr-only">Informations du produit</legend>
+
+            <div class="field">
+                <label class="field__label" for="code">Code produit *</label>
+                <input class="input" type="text" id="code" th:field="*{code}" required
+                       th:readonly="${code != null}"
+                       th:attr="aria-invalid=${#fields.hasErrors('code')} ? 'true' : null"
+                       aria-describedby="err-code hint-code">
+                <p class="field__hint" id="hint-code" th:if="${code != null}">
+                    Le code n’est pas modifiable une fois le produit créé.
+                </p>
+                <p class="field__error" id="err-code" th:if="${#fields.hasErrors('code')}"
+                   th:errors="*{code}">Erreur</p>
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="designation">Désignation *</label>
+                <input class="input" type="text" id="designation" th:field="*{designation}" required
+                       th:attr="aria-invalid=${#fields.hasErrors('designation')} ? 'true' : null"
+                       aria-describedby="err-designation">
+                <p class="field__error" id="err-designation" th:if="${#fields.hasErrors('designation')}"
+                   th:errors="*{designation}">Erreur</p>
+            </div>
+
+            <div class="field-grid">
+                <div class="field">
+                    <label class="field__label" for="categorie">Catégorie</label>
+                    <input class="input" type="text" id="categorie" th:field="*{categorie}"
+                           list="categories-list" placeholder="Chemises, Robes…">
+                    <datalist id="categories-list">
+                        <option th:each="c : ${categories}" th:value="${c}"></option>
+                    </datalist>
+                </div>
+                <div class="field">
+                    <label class="field__label" for="matiere">Matière</label>
+                    <input class="input" type="text" id="matiere" th:field="*{matiere}"
+                           placeholder="Coton, Polyester…">
+                </div>
+            </div>
+
+            <div class="field-grid">
+                <div class="field">
+                    <label class="field__label" for="prixUnitaire">Prix unitaire (DT) *</label>
+                    <input class="input" type="number" step="0.01" min="0" id="prixUnitaire"
+                           th:field="*{prixUnitaire}" required
+                           th:attr="aria-invalid=${#fields.hasErrors('prixUnitaire')} ? 'true' : null"
+                           aria-describedby="err-prix">
+                    <p class="field__error" id="err-prix" th:if="${#fields.hasErrors('prixUnitaire')}"
+                       th:errors="*{prixUnitaire}">Erreur</p>
+                </div>
+                <div class="field">
+                    <label class="field__label" for="stock">Stock</label>
+                    <input class="input" type="number" min="0" id="stock" th:field="*{stock}">
+                    <p class="field__error" th:if="${#fields.hasErrors('stock')}"
+                       th:errors="*{stock}">Erreur</p>
+                </div>
+            </div>
+
+            <div class="field" th:if="${edition}">
+                <label class="checkbox">
+                    <input type="checkbox" th:field="*{active}">
+                    Produit actif
+                </label>
+                <p class="field__hint">Un produit inactif ne peut plus être commandé.</p>
+            </div>
+        </fieldset>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn--primary">Enregistrer</button>
+            <a class="btn btn--ghost" th:href="@{/produits}">Annuler</a>
+        </div>
+    </form>
+</main>
+</body>
+</html>

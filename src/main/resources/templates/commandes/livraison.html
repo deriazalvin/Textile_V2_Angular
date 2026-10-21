@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Livraison', 'commandes', ~{::main},
+                'Commande ' + ${commande.numero})}">
+<body>
+<main class="stack">
+    <div class="page-head">
+        <div>
+            <h2 class="page-head__title">Enregistrer la livraison</h2>
+            <p class="page-head__sub">
+                Commande <span class="cell-mono" th:text="${commande.numero}">CMD</span>
+                · la clôture est définitive
+            </p>
+        </div>
+    </div>
+
+    <div class="alert alert--success" role="status">
+        <svg class="alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+            <path d="M20 6 9 17l-5-5"/>
+        </svg>
+        <span>
+            Contrôle qualité : <strong th:text="${commande.controleQualite.resultat}">CONFORME</strong>
+            — <strong class="tabular" th:text="${commande.quantiteProduiteTotale}">0</strong> pièces livrables.
+        </span>
+    </div>
+
+    <form class="form-card" method="post"
+          th:action="@{'/commandes/' + ${commande.id} + '/livraison'}">
+        <div class="field">
+            <label class="field__label" for="receptionnaire">Nom du réceptionnaire *</label>
+            <input class="input" type="text" id="receptionnaire" name="receptionnaire" required
+                   maxlength="120" autocomplete="off"
+                   placeholder="M. Ben Salah">
+            <p class="field__hint">La commande ne peut plus être modifiée après cette étape.</p>
+        </div>
+
+        <div class="field">
+            <label class="field__label" for="bonLivraison">Bon de livraison</label>
+            <input class="input" type="text" id="bonLivraison" name="bonLivraison" maxlength="60"
+                   placeholder="BL-2026-001">
+        </div>
+
+        <div class="field">
+            <label class="field__label" for="commentaire">Commentaire</label>
+            <textarea class="textarea" id="commentaire" name="commentaire" maxlength="500"
+                      placeholder="État du colis, accords, réserves…"></textarea>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn--primary btn--lg"
+                    data-confirm="Confirmer la livraison définitive de cette commande ?">
+                Confirmer la livraison
+            </button>
+            <a class="btn btn--ghost" th:href="@{'/commandes/' + ${commande.id} + '/production'}">Annuler</a>
+        </div>
+    </form>
+</main>
+</body>
+</html>

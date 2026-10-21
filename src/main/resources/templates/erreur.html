@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(${errorTitre}, ${activeMenu}, ~{::main}, '')}">
+<body>
+<main>
+    <div class="card" style="max-width:620px;margin:var(--space-7) auto;text-align:center">
+        <div class="card__body">
+            <div class="kpi__icon"
+                 style="margin:0 auto var(--space-4);width:56px;height:56px;background:var(--danger-soft-bg);color:var(--danger-soft-fg)"
+                 aria-hidden="true">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+                </svg>
+            </div>
+
+            <p style="font-size:var(--text-xs);letter-spacing:.08em;text-transform:uppercase;
+                      color:var(--fg-subtle);font-weight:var(--weight-semibold)">
+                Erreur 400 · 404 · 409
+            </p>
+            <h2 class="page-head__title" style="margin:var(--space-2) 0 var(--space-3)"
+                th:text="${errorTitre}">Erreur</h2>
+            <p class="text-muted" style="font-size:var(--text-md)" th:text="${errorMessage}">Message</p>
+
+            <p class="text-muted mt-0" style="margin-top:var(--space-3);font-size:var(--text-sm)" th:if="${errorPath}">
+                Chemin : <code class="cell-mono" th:text="${errorPath}"></code>
+            </p>
+
+            <div class="form-actions" style="justify-content:center">
+                <a class="btn btn--primary" th:href="@{/dashboard}">Retour au tableau de bord</a>
+                <a class="btn btn--ghost" th:href="@{/commandes}">Voir les commandes</a>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

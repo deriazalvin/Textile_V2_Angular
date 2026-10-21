@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(${formTitle}, 'clients', ~{::main}, '')}">
+<body>
+<main class="stack">
+    <div class="page-head">
+        <div>
+            <h2 class="page-head__title" th:text="${formTitle}">Client</h2>
+            <p class="page-head__sub">Les champs marqués d’un astérisque sont obligatoires.</p>
+        </div>
+    </div>
+
+    <div th:object="${client}">
+        <div class="alert alert--error" th:if="${#fields.hasGlobalErrors()}" role="alert">
+            <svg class="alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+            </svg>
+            <span>
+                <span th:each="e, it : ${#fields.globalErrors()}">
+                    <span th:text="${e}">Erreur</span><span th:if="${!it.last}"> </span>
+                </span>
+            </span>
+        </div>
+    </div>
+
+    <form class="form-card" method="post" th:action="@{${formAction}}" th:object="${client}" novalidate>
+        <fieldset>
+            <legend class="sr-only">Informations du client</legend>
+
+            <div class="field">
+                <label class="field__label" for="name">Nom / raison sociale *</label>
+                <input class="input" type="text" id="name" th:field="*{name}" required
+                       th:attr="aria-invalid=${#fields.hasErrors('name')} ? 'true' : null"
+                       aria-describedby="err-name">
+                <p class="field__error" id="err-name" th:if="${#fields.hasErrors('name')}"
+                   th:errors="*{name}">Erreur</p>
+            </div>
+
+            <div class="field-grid">
+                <div class="field">
+                    <label class="field__label" for="phone">Téléphone *</label>
+                    <input class="input" type="tel" id="phone" th:field="*{phone}" required
+                           placeholder="+216 71 000 000"
+                           th:attr="aria-invalid=${#fields.hasErrors('phone')} ? 'true' : null"
+                           aria-describedby="err-phone">
+                    <p class="field__error" id="err-phone" th:if="${#fields.hasErrors('phone')}"
+                       th:errors="*{phone}">Erreur</p>
+                </div>
+
+                <div class="field">
+                    <label class="field__label" for="email">Email</label>
+                    <input class="input" type="email" id="email" th:field="*{email}"
+                           placeholder="contact@exemple.tn"
+                           th:attr="aria-invalid=${#fields.hasErrors('email')} ? 'true' : null"
+                           aria-describedby="err-email">
+                    <p class="field__error" id="err-email" th:if="${#fields.hasErrors('email')}"
+                       th:errors="*{email}">Erreur</p>
+                </div>
+            </div>
+
+            <div class="field-grid">
+                <div class="field">
+                    <label class="field__label" for="address">Adresse</label>
+                    <input class="input" type="text" id="address" th:field="*{address}">
+                </div>
+                <div class="field">
+                    <label class="field__label" for="city">Ville</label>
+                    <input class="input" type="text" id="city" th:field="*{city}">
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="notes">Notes internes</label>
+                <textarea class="textarea" id="notes" th:field="*{notes}"
+                          placeholder="Conditions de paiement, préférences…"></textarea>
+                <p class="field__hint">Visible uniquement en interne.</p>
+            </div>
+
+            <div class="field" th:if="${edition}">
+                <label class="checkbox">
+                    <input type="checkbox" th:field="*{active}">
+                    Client actif
+                </label>
+                <p class="field__hint">Un client inactif ne peut plus recevoir de nouvelles commandes.</p>
+            </div>
+        </fieldset>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn--primary">Enregistrer</button>
+            <a class="btn btn--ghost" th:href="@{/clients}">Annuler</a>
+        </div>
+    </form>
+</main>
+</body>
+</html>

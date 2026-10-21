@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(${formTitle}, 'commandes', ~{::main}, '')}">
+<body>
+<main class="stack">
+    <div class="page-head">
+        <div>
+            <h2 class="page-head__title" th:text="${formTitle}">Commande</h2>
+            <p class="page-head__sub">Les champs marqués d’un astérisque sont obligatoires.</p>
+        </div>
+    </div>
+
+    <div th:object="${form}">
+        <div class="alert alert--error" th:if="${#fields.hasGlobalErrors()}" role="alert">
+            <svg class="alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+            </svg>
+            <span>
+                <span th:each="e, it : ${#fields.globalErrors()}">
+                    <span th:text="${e}">Erreur</span><span th:if="${!it.last}"> </span>
+                </span>
+            </span>
+        </div>
+    </div>
+
+    <form method="post" th:action="@{${formAction}}" th:object="${form}" novalidate>
+        <input type="hidden" th:field="*{id}" th:if="${form.id != null}">
+
+        <section class="card" style="margin-bottom:var(--space-5)">
+            <div class="card__header">
+                <h3 class="card__title">Informations générales</h3>
+            </div>
+            <div class="card__body">
+                <div class="field">
+                    <label class="field__label" for="clientId">Client *</label>
+                    <select class="select" id="clientId" th:field="*{clientId}" required
+                            th:attr="aria-invalid=${#fields.hasErrors('clientId')} ? 'true' : null"
+                            aria-describedby="err-client">
+                        <option value="">-- Sélectionner un client --</option>
+                        <option th:each="c : ${clients}" th:value="${c.id}"
+                                th:text="${c.name} + (c.city != null ? ' (' + c.city + ')' : '')"
+                                th:selected="${c.id == form.clientId}">Client</option>
+                    </select>
+                    <p class="field__error" id="err-client" th:if="${#fields.hasErrors('clientId')}"
+                       th:errors="*{clientId}">Erreur</p>
+                </div>
+
+                <div class="field-grid">
+                    <div class="field">
+                        <label class="field__label" for="dateLivraisonPrevue">Livraison prévue *</label>
+                        <input class="input" type="date" id="dateLivraisonPrevue"
+                               th:field="*{dateLivraisonPrevue}" required
+                               th:attr="aria-invalid=${#fields.hasErrors('dateLivraisonPrevue')} ? 'true' : null"
+                               aria-describedby="err-date">
+                        <p class="field__error" id="err-date" th:if="${#fields.hasErrors('dateLivraisonPrevue')}"
+                           th:errors="*{dateLivraisonPrevue}">Erreur</p>
+                    </div>
+
+                    <div class="field">
+                        <label class="field__label" for="priorite">Priorité</label>
+                        <select class="select" id="priorite" th:field="*{priorite}">
+                            <option th:each="p : ${priorites}" th:value="${p}" th:text="${p}">PRIORITE</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="field__label" for="commentaire">Commentaire</label>
+                    <input class="input" type="text" id="commentaire" th:field="*{commentaire}" maxlength="500">
+                </div>
+
+                <div class="field">
+                    <label class="field__label" for="instructionsSpeciales">Instructions spéciales</label>
+                    <textarea class="textarea" id="instructionsSpeciales" th:field="*{instructionsSpeciales}"
+                              maxlength="500"
+                              placeholder="Tolérances, finitions particulières, marquage…"></textarea>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card__header">
+                <h3 class="card__title">Lignes de commande</h3>
+                <button type="button" class="btn btn--secondary btn--sm" onclick="addLigne()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    Ajouter une ligne
+                </button>
+            </div>
+
+            <div class="table-scroll">
+                <table class="table" id="lignes-table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Produit</th>
+                        <th scope="col" class="cell-num">Quantité</th>
+                        <th scope="col">Taille</th>
+                        <th scope="col">Couleur</th>
+                        <th scope="col" class="cell-num">Prix unitaire</th>
+                        <th scope="col"><span class="sr-only">Retirer</span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="ligne, iter : *{lignes}">
+                        <td>
+                            <select class="select" th:field="*{lignes[__${iter.index}__].produitId}" required
+                                    th:attr="aria-label='Produit de la ligne ' + ${iter.index + 1}">
+                                <option value="">-- Sélectionner --</option>
+                                <option th:each="p : ${produits}" th:value="${p.id}"
+                                        th:text="${p.code} + ' · ' + ${p.designation}"
+                                        th:selected="${p.id == ligne.produitId}"></option>
+                            </select>
+                            <p class="field__error"
+                               th:if="${#fields.hasErrors('lignes[' + iter.index + '].produitId')}"
+                               th:errors="*{lignes[__${iter.index}__].produitId}">Erreur</p>
+                        </td>
+                        <td>
+                            <input class="input" type="number" min="1" required style="max-width:110px"
+                                   th:field="*{lignes[__${iter.index}__].quantite}"
+                                   th:attr="aria-label='Quantité de la ligne ' + ${iter.index + 1}">
+                            <p class="field__error"
+                               th:if="${#fields.hasErrors('lignes[' + iter.index + '].quantite')}"
+                               th:errors="*{lignes[__${iter.index}__].quantite}">Erreur</p>
+                        </td>
+                        <td><input class="input" type="text" maxlength="10" style="max-width:100px"
+                                   th:field="*{lignes[__${iter.index}__].taille}"
+                                   th:attr="aria-label='Taille de la ligne ' + ${iter.index + 1}"></td>
+                        <td><input class="input" type="text" maxlength="40" style="max-width:150px"
+                                   th:field="*{lignes[__${iter.index}__].couleur}"
+                                   th:attr="aria-label='Couleur de la ligne ' + ${iter.index + 1}"></td>
+                        <td><input class="input" type="number" step="0.01" min="0" style="max-width:120px"
+                                   th:field="*{lignes[__${iter.index}__].prixUnitaire}"
+                                   th:attr="aria-label='Prix unitaire de la ligne ' + ${iter.index + 1}"></td>
+                        <td>
+                            <button type="button" class="btn btn--danger-soft btn--sm" onclick="removeLigne(this)"
+                                    th:attr="aria-label='Retirer la ligne ' + ${iter.index + 1}">Retirer</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Modèle cloné pour l’ajout dynamique de lignes -->
+        <template id="ligne-model">
+            <tr>
+                <td>
+                    <select class="select" name="lignes[__${i}__].produitId" required>
+                        <option value="">-- Sélectionner --</option>
+                        <option th:each="p : ${produits}" th:value="${p.id}"
+                                th:text="${p.code} + ' · ' + ${p.designation}"></option>
+                    </select>
+                </td>
+                <td><input class="input" type="number" min="1" value="1" required
+                           style="max-width:110px" name="lignes[__${i}__].quantite"></td>
+                <td><input class="input" type="text" maxlength="10" style="max-width:100px"
+                           name="lignes[__${i}__].taille"></td>
+                <td><input class="input" type="text" maxlength="40" style="max-width:150px"
+                           name="lignes[__${i}__].couleur"></td>
+                <td><input class="input" type="number" step="0.01" min="0" style="max-width:120px"
+                           name="lignes[__${i}__].prixUnitaire"></td>
+                <td>
+                    <button type="button" class="btn btn--danger-soft btn--sm" onclick="removeLigne(this)">
+                        Retirer
+                    </button>
+                </td>
+            </tr>
+        </template>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn--primary btn--lg">Enregistrer la commande</button>
+            <a class="btn btn--ghost" th:href="@{/commandes}">Annuler</a>
+        </div>
+    </form>
+</main>
+</body>
+</html>

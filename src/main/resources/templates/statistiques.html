@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Statistiques de production', 'statistiques', ~{::main},
+                'Rendements, délais et qualité')}">
+<body>
+<main class="stack">
+
+    <div class="page-head">
+        <div>
+            <h2 class="page-head__title">Statistiques de production</h2>
+            <p class="page-head__sub">Volumétrie, rendement par étape et par produit, respect des délais, qualité.</p>
+        </div>
+    </div>
+
+    <!-- ============ Volumétrie ============ -->
+    <section class="kpi-grid" aria-label="Volumétrie">
+        <article class="kpi">
+            <div class="kpi__head"><span class="kpi__label">Commandes</span></div>
+            <div class="kpi__value tabular" th:text="${stats.totalCommandes}">0</div>
+        </article>
+        <article class="kpi kpi--success">
+            <div class="kpi__head"><span class="kpi__label">Livrées</span></div>
+            <div class="kpi__value tabular" th:text="${stats.commandesLivrees}">0</div>
+        </article>
+        <article class="kpi kpi--warning">
+            <div class="kpi__head"><span class="kpi__label">En cours</span></div>
+            <div class="kpi__value tabular" th:text="${stats.commandesEnCours}">0</div>
+        </article>
+        <article class="kpi kpi--danger">
+            <div class="kpi__head"><span class="kpi__label">En retard</span></div>
+            <div class="kpi__value tabular" th:text="${stats.commandesEnRetard}">0</div>
+        </article>
+        <article class="kpi">
+            <div class="kpi__head"><span class="kpi__label">Quantité commandée</span></div>
+            <div class="kpi__value tabular" th:text="${stats.quantiteCommandee}">0</div>
+        </article>
+        <article class="kpi">
+            <div class="kpi__head"><span class="kpi__label">Quantité produite</span></div>
+            <div class="kpi__value tabular" th:text="${stats.quantiteProduite}">0</div>
+        </article>
+        <article class="kpi kpi--success">
+            <div class="kpi__head"><span class="kpi__label">Rendement global</span></div>
+            <div class="kpi__value tabular" th:text="${stats.rendementGlobal} + ' %'">0 %</div>
+        </article>
+        <article class="kpi kpi--success">
+            <div class="kpi__head"><span class="kpi__label">Livrées à temps</span></div>
+            <div class="kpi__value tabular" th:text="${stats.tauxLivraisonATemps} + ' %'">0 %</div>
+        </article>
+    </section>
+
+    <!-- ============ Rendement par étape ============ -->
+    <section class="card">
+        <div class="card__header">
+            <h3 class="card__title">Rendement par étape du workflow</h3>
+            <span class="badge badge--muted" th:text="${stats.totalCommandes} + ' commandes suivies'">0</span>
+        </div>
+        <div class="table-scroll">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Étape</th>
+                    <th scope="col" class="cell-num">Étapes terminées</th>
+                    <th scope="col" class="cell-num">Quantité produite cumulée</th>
+                    <th scope="col" class="cell-num">Pièces perdues depuis l'étape précédente</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="e, it : ${stats.parEtape}">
+                    <td class="cell-primary" th:text="${e.etape}">Étape</td>
+                    <td class="cell-num tabular" th:text="${e.etapesTerminees}">0</td>
+                    <td class="cell-num tabular" th:text="${e.quantiteProduite}">0</td>
+                    <td class="cell-num tabular"
+                        th:text="${it.index == 0 ? '—' : e.quantiteProduite - stats.parEtape[it.index - 1].quantiteProduite}">0</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ============ Rendement par produit ============ -->
+    <section class="card">
+        <div class="card__header">
+            <h3 class="card__title">Rendement par produit</h3>
+        </div>
+        <div class="empty" th:if="${#lists.isEmpty(stats.parProduit)}"
+             th:replace="~{fragments/pagination :: vide('Aucune donnée de production',
+                'Aucune commande enregistrée pour le moment.')}"></div>
+        <div class="table-scroll" th:unless="${#lists.isEmpty(stats.parProduit)}">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Produit</th>
+                    <th scope="col" class="cell-num">Commandée</th>
+                    <th scope="col" class="cell-num">Produite</th>
+                    <th scope="col" class="cell-num">Écart</th>
+                    <th scope="col">Rendement</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${stats.parProduit}">
+                    <td>
+                        <div class="cell-primary cell-mono" th:text="${p.code}">CODE</div>
+                        <div class="text-muted" th:text="${p.designation}">Désignation</div>
+                    </td>
+                    <td class="cell-num tabular" th:text="${p.quantiteCommandee}">0</td>
+                    <td class="cell-num tabular cell-primary" th:text="${p.quantiteProduite}">0</td>
+                    <td class="cell-num tabular text-danger" th:text="${p.ecart}">0</td>
+                    <td>
+                        <div class="meter">
+                            <div class="meter__track" role="img"
+                                 th:aria-label="'Rendement ' + ${p.rendement} + ' pour cent'">
+                                <div class="meter__fill meter__fill--warning"
+                                     th:if="${p.rendement < 100}"
+                                     th:style="'width:' + ${p.rendement} + '%'"></div>
+                                <div class="meter__fill meter__fill--success"
+                                     th:unless="${p.rendement < 100}"
+                                     th:style="'width:' + ${p.rendement > 100 ? 100 : p.rendement} + '%'"></div>
+                            </div>
+                            <span class="meter__value tabular" th:text="${p.rendement} + ' %'">0 %</span>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ============ Délais + qualité + clients ============ -->
+    <section class="grid-2">
+        <div class="card">
+            <div class="card__header"><h3 class="card__title">Respect des délais</h3></div>
+            <div class="card__body kv">
+                <div class="kv__item">
+                    <span class="kv__label">Délai moyen</span>
+                    <span class="kv__value tabular" th:text="${stats.delaiMoyenJours} + ' j'">0 j</span>
+                </div>
+                <div class="kv__item">
+                    <span class="kv__label">Livrées à temps</span>
+                    <span class="kv__value tabular text-success" th:text="${stats.commandesLivreesATemps}">0</span>
+                </div>
+                <div class="kv__item">
+                    <span class="kv__label">Livrées en retard</span>
+                    <span class="kv__value tabular text-danger" th:text="${stats.commandesLivreesEnRetard}">0</span>
+                </div>
+                <div class="kv__item">
+                    <span class="kv__label">Taux de ponctualité</span>
+                    <span class="kv__value tabular" th:text="${stats.tauxLivraisonATemps} + ' %'">0 %</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card__header"><h3 class="card__title">Qualité</h3></div>
+            <div class="card__body kv">
+                <div class="kv__item">
+                    <span class="kv__label">Contrôles conformes</span>
+                    <span class="kv__value tabular text-success" th:text="${stats.controlesConformes}">0</span>
+                </div>
+                <div class="kv__item">
+                    <span class="kv__label">Non conformes</span>
+                    <span class="kv__value tabular text-danger" th:text="${stats.controlesNonConformes}">0</span>
+                </div>
+                <div class="kv__item">
+                    <span class="kv__label">Taux de conformité</span>
+                    <span class="kv__value tabular" th:text="${stats.tauxConformite} + ' %'">0 %</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ Volume par client ============ -->
+    <section class="card">
+        <div class="card__header"><h3 class="card__title">Volume par client</h3></div>
+        <div class="empty" th:if="${#lists.isEmpty(stats.parClient)}"
+             th:replace="~{fragments/pagination :: vide('Aucun client',
+                'Aucun volume de commande à afficher.')}"></div>
+        <div class="table-scroll" th:unless="${#lists.isEmpty(stats.parClient)}">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Client</th>
+                    <th scope="col" class="cell-num">Commandes</th>
+                    <th scope="col" class="cell-num">Montant</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${stats.parClient}">
+                    <td class="cell-primary" th:text="${c.client}">Client</td>
+                    <td class="cell-num tabular" th:text="${c.commandes}">0</td>
+                    <td class="cell-num tabular" th:text="${c.montant} + ' DT'">0</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ============ Ventilations ============ -->
+    <section class="grid-2">
+        <div class="card">
+            <div class="card__header"><h3 class="card__title">Répartition par statut</h3></div>
+            <div class="card__body stack stack--sm">
+                <div class="row row--between" th:each="b : ${stats.parStatut}">
+                    <span class="badge badge--muted" th:text="${b.statut}">STATUT</span>
+                    <span class="tabular" th:text="${b.nombre}">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card__header"><h3 class="card__title">Répartition par priorité</h3></div>
+            <div class="card__body stack stack--sm">
+                <div class="row row--between" th:each="b : ${stats.parPriorite}">
+                    <span class="badge badge--warning" th:text="${b.priorite}">PRIORITE</span>
+                    <span class="tabular" th:text="${b.nombre}">0</span>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>

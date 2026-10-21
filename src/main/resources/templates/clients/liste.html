@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Clients', 'clients', ~{::main}, 'Référentiel commercial')}">
+<body>
+<main class="stack">
+
+    <div class="page-head">
+        <div>
+            <h2 class="page-head__title">Clients</h2>
+            <p class="page-head__sub" th:text="${clients.totalElements} + ' client(s) enregistré(s)'">0</p>
+        </div>
+        <div class="page-head__actions">
+            <a class="btn btn--primary" th:href="@{/clients/nouveau}"
+               sec:authorize="hasAnyRole('ADMIN','MANAGER')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+                    <path d="M12 5v14M5 12h14"/>
+                </svg>
+                Nouveau client
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <form class="filters" method="get" th:action="@{/clients}" role="search">
+        <div class="field" style="margin:0">
+            <label class="field__label" for="search">Recherche</label>
+            <input class="input" type="search" id="search" name="search" th:value="${search}"
+                   placeholder="Nom, email ou téléphone">
+        </div>
+        <div class="field" style="margin:0">
+            <label class="field__label" for="active">État</label>
+            <select class="select" id="active" name="active">
+                <option value="">Tous</option>
+                <option value="true" th:selected="${active != null and active}">Actifs</option>
+                <option value="false" th:selected="${active != null and !active}">Inactifs</option>
+            </select>
+        </div>
+        <div class="filters__actions">
+            <button type="submit" class="btn btn--secondary">Filtrer</button>
+            <a class="btn btn--ghost" th:href="@{/clients}">Réinitialiser</a>
+        </div>
+    </form>
+
+    <!-- Résultat -->
+    <div th:if="${#lists.isEmpty(clients.content)}"
+         th:replace="~{fragments/pagination :: vide('Aucun client',
+                'Aucun client ne correspond à votre recherche.')}"></div>
+
+    <div class="table-wrap" th:unless="${#lists.isEmpty(clients.content)}">
+        <div class="table-scroll">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Client</th>
+                    <th scope="col">Téléphone</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Ville</th>
+                    <th scope="col" class="cell-num">Commandes</th>
+                    <th scope="col">État</th>
+                    <th scope="col" sec:authorize="hasAnyRole('ADMIN','MANAGER')">
+                        <span class="sr-only">Actions</span>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${clients.content}">
+                    <td class="cell-primary" th:text="${c.name}">Nom</td>
+                    <td class="cell-mono" th:text="${c.phone}">Tel</td>
+                    <td th:text="${c.email} ?: '—'">Email</td>
+                    <td th:text="${c.city} ?: '—'">Ville</td>
+                    <td class="cell-num tabular" th:text="${c.nombreCommandes}">0</td>
+                    <td>
+                        <span class="badge" th:classappend="${c.activeBadgeClass}"
+                              th:text="${c.activeLabel}">Actif</span>
+                    </td>
+                    <td sec:authorize="hasAnyRole('ADMIN','MANAGER')">
+                        <div class="table__actions">
+                            <a class="btn btn--secondary btn--sm"
+                               th:href="@{'/clients/' + ${c.id} + '/modifier'}"
+                               th:attr="aria-label='Modifier ' + ${c.name}">Modifier</a>
+                            <form class="inline-form" method="post"
+                                  th:action="@{'/clients/' + ${c.id} + '/supprimer'}"
+                                  th:attr="data-confirm='Supprimer le client ' + ${c.name} + ' ?'">
+                                <button type="submit" class="btn btn--danger-soft btn--sm"
+                                        th:attr="aria-label='Supprimer ' + ${c.name}">Supprimer</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/pagination :: pagination}"></div>
+</main>
+</body>
+</html>

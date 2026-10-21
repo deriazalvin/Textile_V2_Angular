@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Produits', 'produits', ~{::main}, 'Catalogue textile')}">
+<body>
+<main class="stack">
+
+    <div class="page-head">
+        <div>
+            <h2 class="page-head__title">Produits</h2>
+            <p class="page-head__sub" th:text="${produits.totalElements} + ' référence(s)'">0</p>
+        </div>
+        <div class="page-head__actions">
+            <a class="btn btn--primary" th:href="@{/produits/nouveau}"
+               sec:authorize="hasAnyRole('ADMIN','MANAGER')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+                    <path d="M12 5v14M5 12h14"/>
+                </svg>
+                Nouveau produit
+            </a>
+        </div>
+    </div>
+
+    <form class="filters" method="get" th:action="@{/produits}" role="search">
+        <div class="field" style="margin:0">
+            <label class="field__label" for="search">Recherche</label>
+            <input class="input" type="search" id="search" name="search" th:value="${search}"
+                   placeholder="Code, désignation ou catégorie">
+        </div>
+        <div class="field" style="margin:0">
+            <label class="field__label" for="categorie">Catégorie</label>
+            <select class="select" id="categorie" name="categorie">
+                <option value="">Toutes</option>
+                <option th:each="c : ${categories}" th:value="${c}" th:text="${c}"
+                        th:selected="${c == categorie}">Catégorie</option>
+            </select>
+        </div>
+        <div class="field" style="margin:0">
+            <label class="field__label" for="active">État</label>
+            <select class="select" id="active" name="active">
+                <option value="">Tous</option>
+                <option value="true" th:selected="${active != null and active}">Actifs</option>
+                <option value="false" th:selected="${active != null and !active}">Inactifs</option>
+            </select>
+        </div>
+        <div class="filters__actions">
+            <button type="submit" class="btn btn--secondary">Filtrer</button>
+            <a class="btn btn--ghost" th:href="@{/produits}">Réinitialiser</a>
+        </div>
+    </form>
+
+    <div th:if="${#lists.isEmpty(produits.content)}"
+         th:replace="~{fragments/pagination :: vide('Aucun produit',
+                'Aucun produit ne correspond à votre recherche.')}"></div>
+
+    <div class="table-wrap" th:unless="${#lists.isEmpty(produits.content)}">
+        <div class="table-scroll">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Code</th>
+                    <th scope="col">Désignation</th>
+                    <th scope="col">Catégorie</th>
+                    <th scope="col">Matière</th>
+                    <th scope="col" class="cell-num">Prix unitaire</th>
+                    <th scope="col" class="cell-num">Stock</th>
+                    <th scope="col">État</th>
+                    <th scope="col" sec:authorize="hasAnyRole('ADMIN','MANAGER')">
+                        <span class="sr-only">Actions</span>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${produits.content}">
+                    <td class="cell-mono cell-primary" th:text="${p.code}">CODE</td>
+                    <td th:text="${p.designation}">Désignation</td>
+                    <td class="text-muted" th:text="${p.categorie} ?: '—'">Catégorie</td>
+                    <td class="text-muted" th:text="${p.matiere} ?: '—'">Matière</td>
+                    <td class="cell-num tabular" th:text="${p.prixUnitaire} + ' DT'">0</td>
+                    <td class="cell-num tabular" th:text="${p.stock}">0</td>
+                    <td>
+                        <span class="badge" th:classappend="${p.activeBadgeClass}"
+                              th:text="${p.activeLabel}">Actif</span>
+                    </td>
+                    <td sec:authorize="hasAnyRole('ADMIN','MANAGER')">
+                        <div class="table__actions">
+                            <a class="btn btn--secondary btn--sm" th:href="@{'/produits/' + ${p.id} + '/modifier'}"
+                               th:attr="aria-label='Modifier ' + ${p.code}">Modifier</a>
+                            <form class="inline-form" method="post"
+                                  th:action="@{'/produits/' + ${p.id} + '/supprimer'}"
+                                  th:attr="data-confirm='Supprimer le produit ' + ${p.code} + ' ?'">
+                                <button type="submit" class="btn btn--danger-soft btn--sm"
+                                        th:attr="aria-label='Supprimer ' + ${p.code}">Supprimer</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/pagination :: pagination}"></div>
+</main>
+</body>
+</html>

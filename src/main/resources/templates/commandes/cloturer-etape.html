@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Clôture d’étape', 'commandes', ~{::main},
+                'Commande ' + ${commande.numero})}">
+<body>
+<main class="stack">
+    <div class="page-head">
+        <div>
+            <h2 class="page-head__title" th:text="${etape.libelle}">Étape</h2>
+            <p class="page-head__sub">
+                Déclarez les quantités réellement produites pour la commande
+                <span class="cell-mono" th:text="${commande.numero}">CMD</span>.
+            </p>
+        </div>
+    </div>
+
+    <div class="alert alert--info">
+        <svg class="alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/>
+        </svg>
+        <span>
+            La quantité saisie ne peut dépasser ni la quantité commandée, ni la quantité
+            disponible issue de l’étape précédente.
+        </span>
+    </div>
+
+    <div th:object="${form}">
+        <div class="alert alert--error" th:if="${#fields.hasGlobalErrors()}" role="alert">
+            <svg class="alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+            </svg>
+            <span>
+                <span th:each="e, it : ${#fields.globalErrors()}">
+                    <span th:text="${e}">Erreur</span><span th:if="${!it.last}"> </span>
+                </span>
+            </span>
+        </div>
+    </div>
+
+    <form method="post" novalidate
+          th:action="@{'/commandes/' + ${commande.id} + '/production/etapes/' + ${etape} + '/cloturer'}"
+          th:object="${form}">
+        <input type="hidden" th:field="*{etape}">
+
+        <section class="card">
+            <div class="card__header">
+                <h3 class="card__title">Quantités produites</h3>
+            </div>
+            <div class="table-scroll">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Ligne</th>
+                        <th scope="col" class="cell-num">Commandée</th>
+                        <th scope="col" class="cell-num">Disponible</th>
+                        <th scope="col" class="cell-num">Quantité produite</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="q, iter : *{quantites}">
+                        <td>
+                            <input type="hidden" th:field="*{quantites[__${iter.index}__].ligneId}">
+                            <span class="cell-primary" th:text="${q.libelle}">Ligne</span>
+                        </td>
+                        <td class="cell-num tabular text-muted"
+                            th:text="${commande.lignes[iter.index].quantite}">0</td>
+                        <td class="cell-num tabular">
+                            <span class="badge badge--info" th:text="${q.quantiteDisponible}">0</span>
+                        </td>
+                        <td class="cell-num">
+                            <input class="input" type="number" min="0" max="1000000" required
+                                   style="max-width:140px"
+                                   th:field="*{quantites[__${iter.index}__].quantite}"
+                                   th:attr="aria-label='Quantité produite pour la ligne ' + ${iter.index + 1},
+                                            aria-invalid=${#fields.hasErrors('quantites[' + iter.index + '].quantite')} ? 'true' : null"
+                                   th:max="${q.quantiteDisponible}">
+                            <p class="field__error"
+                               th:if="${#fields.hasErrors('quantites[' + iter.index + '].quantite')}"
+                               th:errors="*{quantites[__${iter.index}__].quantite}">Erreur</p>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card__body">
+                <div class="field">
+                    <label class="field__label" for="commentaire">Commentaire</label>
+                    <input class="input" type="text" id="commentaire" th:field="*{commentaire}" maxlength="500"
+                           placeholder="Rendement, incidents, ajustements…">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn--primary">Terminer l’étape</button>
+                    <a class="btn btn--ghost" th:href="@{'/commandes/' + ${commande.id} + '/production'}">Annuler</a>
+                </div>
+            </div>
+        </section>
+    </form>
+</main>
+</body>
+</html>

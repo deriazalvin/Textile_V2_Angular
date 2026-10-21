@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Utilisateurs', 'admin', ~{::main}, 'Administration des comptes')}">
+<body>
+<main class="stack">
+
+    <div class="page-head">
+        <div>
+            <h2 class="page-head__title">Utilisateurs</h2>
+            <p class="page-head__sub" th:text="${#lists.size(utilisateurs)} + ' compte(s) sur l’application'">0</p>
+        </div>
+    </div>
+
+    <section class="card">
+        <div class="card__header">
+            <h3 class="card__title">Comptes existants</h3>
+        </div>
+        <div class="table-scroll">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Identifiant</th>
+                    <th scope="col">Nom affiché</th>
+                    <th scope="col">Rôle</th>
+                    <th scope="col">État</th>
+                    <th scope="col">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="u : ${utilisateurs}">
+                    <td class="cell-mono cell-primary" th:text="${u.username}">user</td>
+                    <td th:text="${u.displayName}">Nom</td>
+                    <td><span class="badge badge--info" th:text="${u.role}">ROLE</span></td>
+                    <td>
+                        <span class="badge" th:classappend="${u.enabledBadgeClass}"
+                              th:text="${u.enabled} ? 'Actif' : 'Désactivé'">Actif</span>
+                    </td>
+                    <td>
+                        <form class="inline-form" method="post"
+                              th:action="@{'/admin/utilisateurs/' + ${u.id} + '/actif'}">
+                            <input type="hidden" name="enabled" th:value="${!u.enabled}">
+                            <button type="submit" class="btn btn--secondary btn--sm"
+                                    th:text="${u.enabled ? 'Désactiver' : 'Activer'}"
+                                    th:attr="aria-label=${u.enabled ? 'Désactiver le compte ' : 'Activer le compte '} + ${u.username}">
+                                Basculer
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="card__header">
+            <h3 class="card__title">Créer un compte</h3>
+        </div>
+        <div class="card__body">
+            <form method="post" th:action="@{/admin/utilisateurs}">
+                <div class="field-grid">
+                    <div class="field">
+                        <label class="field__label" for="username">Identifiant *</label>
+                        <input class="input" type="text" id="username" name="username" required
+                               autocomplete="off">
+                    </div>
+                    <div class="field">
+                        <label class="field__label" for="displayName">Nom affiché</label>
+                        <input class="input" type="text" id="displayName" name="displayName">
+                    </div>
+                    <div class="field">
+                        <label class="field__label" for="password">Mot de passe *</label>
+                        <input class="input" type="password" id="password" name="password" required
+                               minlength="6" autocomplete="new-password">
+                    </div>
+                    <div class="field">
+                        <label class="field__label" for="role">Rôle *</label>
+                        <select class="select" id="role" name="role" required>
+                            <option th:each="r : ${roles}" th:value="${r}" th:text="${r}">ROLE</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn--primary">Créer le compte</button>
+                </div>
+            </form>
+        </div>
+    </section>
+</main>
+</body>
+</html>

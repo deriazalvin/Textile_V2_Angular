@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>Connexion · Textile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<main class="auth">
+
+    <!-- Panneau de présentation -->
+    <section class="auth__aside" aria-hidden="true">
+        <h2>Pilotez vos<br>commandes textiles.</h2>
+        <p>Du bon de commande à la livraison, en passant par la coupe, la couture,
+            la finition et le contrôle qualité.</p>
+
+        <div class="auth__feature">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 6 9 17l-5-5"/>
+            </svg>
+            <span>Workflow strict : aucune étape ne peut être sautée</span>
+        </div>
+        <div class="auth__feature">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 6 9 17l-5-5"/>
+            </svg>
+            <span>Suivi des quantités produites à chaque étape</span>
+        </div>
+        <div class="auth__feature">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 6 9 17l-5-5"/>
+            </svg>
+            <span>Détection automatique des retards de livraison</span>
+        </div>
+        <div class="auth__feature">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 6 9 17l-5-5"/>
+            </svg>
+            <span>Contrôle qualité obligatoire avant toute livraison</span>
+        </div>
+    </section>
+
+    <!-- Formulaire -->
+    <section class="auth__panel">
+        <div class="auth__form">
+            <div class="row" style="gap:var(--space-3);margin-bottom:var(--space-5)">
+                <div class="sidebar__logo" aria-hidden="true" style="background:linear-gradient(135deg,var(--indigo-500),var(--indigo-700))">TX</div>
+                <div>
+                    <div style="font-weight:var(--weight-semibold);color:var(--fg-strong)">Textile</div>
+                    <div style="font-size:var(--text-xs);color:var(--fg-subtle)">Pilotage de production</div>
+                </div>
+            </div>
+
+            <h2 class="auth__title">Connexion</h2>
+            <p class="auth__sub">Renseignez vos identifiants pour accéder à l’application.</p>
+
+            <div class="alert alert--error" th:if="${param.error}" role="alert">
+                <svg class="alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+                </svg>
+                <span>Identifiant ou mot de passe incorrect.</span>
+            </div>
+            <div class="alert alert--success" th:if="${param.logout}" role="status">
+                <svg class="alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+                    <path d="M20 6 9 17l-5-5"/>
+                </svg>
+                <span>Vous êtes déconnecté.</span>
+            </div>
+
+            <form th:action="@{/login}" method="post">
+                <div class="field">
+                    <label class="field__label" for="username">Identifiant</label>
+                    <input class="input" type="text" id="username" name="username"
+                           autocomplete="username" required autofocus>
+                </div>
+
+                <div class="field">
+                    <label class="field__label" for="password">Mot de passe</label>
+                    <input class="input" type="password" id="password" name="password"
+                           autocomplete="current-password" required>
+                </div>
+
+                <button type="submit" class="btn btn--primary btn--lg btn--block">Se connecter</button>
+            </form>
+
+            <div class="demo-accounts">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td><code>admin</code></td>
+                            <td>Configuration</td>
+                            <td class="text-right">
+                                <button type="button" data-fill-user="admin|admin123">Utiliser</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</main>
+<script th:src="@{/js/app.js}" defer></script>
+</body>
+</html>

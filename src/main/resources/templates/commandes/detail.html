@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Commande ' + ${commande.numero}, 'commandes', ~{::main},
+                ${commande.clientNom} + ' · ' + ${commande.statut})}">
+<body>
+<main class="stack">
+
+    <div class="page-head">
+        <div>
+            <h2 class="page-head__title cell-mono" th:text="${commande.numero}">CMD</h2>
+            <p class="page-head__sub">
+                <span th:text="${commande.clientNom}">Client</span>
+                · <span th:text="${commande.clientTelephone}">Tél</span>
+            </p>
+        </div>
+        <div class="page-head__actions">
+            <a class="btn btn--primary" th:href="@{'/commandes/' + ${commande.id} + '/production'}"
+               sec:authorize="hasAnyRole('ADMIN','MANAGER','OPERATOR')">Suivre la production</a>
+            <a class="btn btn--secondary" th:href="@{'/commandes/' + ${commande.id} + '/qualite'}"
+               sec:authorize="hasAnyRole('ADMIN','MANAGER','OPERATOR')">Contrôle qualité</a>
+            <a class="btn btn--secondary" th:href="@{'/commandes/' + ${commande.id} + '/livraison'}"
+               sec:authorize="hasAnyRole('ADMIN','MANAGER','OPERATOR')">Livraison</a>
+            <a class="btn btn--secondary" th:href="@{'/commandes/' + ${commande.id} + '/modifier'}"
+               th:if="${commande.statut.name() != 'LIVREE' and commande.statut.name() != 'ANNULEE'}"
+               sec:authorize="hasAnyRole('ADMIN','MANAGER')">Modifier</a>
+            <form class="inline-form" method="post"
+                  th:action="@{'/commandes/' + ${commande.id} + '/annuler'}"
+                  th:attr="data-confirm='Annuler définitivement la commande ' + ${commande.numero} + ' ?'"
+                  th:if="${commande.statut.name() != 'LIVREE' and commande.statut.name() != 'ANNULEE'}"
+                  sec:authorize="hasAnyRole('ADMIN','MANAGER')">
+                <button type="submit" class="btn btn--danger-soft">Annuler</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============ Badges d'état ============ -->
+    <div class="row">
+        <span class="badge"
+              th:classappend="${commande.statut.badgeClass}"
+              th:text="${commande.statut}">STATUT</span>
+        <span class="badge"
+              th:classappend="${commande.priorite.badgeClass}"
+              th:text="${commande.priorite}">PRIORITE</span>
+        <span class="badge badge--danger" th:if="${commande.enRetard}"
+              th:text="'Retard : ' + ${commande.retardJours} + ' j'">Retard</span>
+        <span class="badge badge--success" th:if="${commande.statut.name() == 'LIVREE'}"
+              th:text="'Livrée le ' + ${#temporals.format(commande.dateLivraisonReelle, 'dd/MM/yyyy')}">Livrée</span>
+    </div>
+
+    <!-- ============ Chiffres clés ============ -->
+    <section class="card">
+        <div class="card__body">
+            <div class="kv">
+                <div class="kv__item">
+                    <span class="kv__label">Date commande</span>
+                    <span class="kv__value" th:text="${#temporals.format(commande.dateCommande, 'dd/MM/yyyy')}">-</span>
+                </div>
+                <div class="kv__item">
+                    <span class="kv__label">Livraison prévue</span>
+                    <span class="kv__value" th:text="${#temporals.format(commande.dateLivraisonPrevue, 'dd/MM/yyyy')}">-</span>
+                </div>
+                <div class="kv__item">
+                    <span class="kv__label">Durée prévue</span>
+                    <span class="kv__value" th:text="${commande.dureePrevueJours} + ' j'">0</span>
+                </div>
+                <div class="kv__item">
+                    <span class="kv__label">Durée réelle</span>
+                    <span class="kv__value"
+                          th:text="${commande.dureeReelleJours != null ? commande.dureeReelleJours + ' j' : '—'}">—</span>
+                </div>
+                <div class="kv__item">
+                    <span class="kv__label">Quantités</span>
+                    <span class="kv__value tabular"
+                          th:text="${commande.quantiteProduiteTotale} + ' / ' + ${commande.quantiteTotale}">0/0</span>
+                </div>
+                <div class="kv__item">
+                    <span class="kv__label">Montant total</span>
+                    <span class="kv__value tabular" th:text="${commande.montantTotal} + ' DT'">0</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="alert alert--info" th:if="${commande.commentaire != null}">
+        <svg class="alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/>
+        </svg>
+        <span><strong>Commentaire :</strong> <span th:text="${commande.commentaire}"></span></span>
+    </div>
+    <div class="alert alert--warning" th:if="${commande.instructionsSpeciales != null}">
+        <svg class="alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+            <path d="m13 2-9 12h7l-1 8 9-12h-7l1-8Z"/>
+        </svg>
+        <span><strong>Instructions spéciales :</strong> <span th:text="${commande.instructionsSpeciales}"></span></span>
+    </div>
+
+    <!-- ============ Lignes ============ -->
+    <section class="card">
+        <div class="card__header">
+            <h3 class="card__title">Lignes de commande</h3>
+        </div>
+        <div class="table-scroll">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Produit</th>
+                    <th scope="col">Variante</th>
+                    <th scope="col" class="cell-num">Commandée</th>
+                    <th scope="col" class="cell-num">Produite</th>
+                    <th scope="col" class="cell-num">Restant</th>
+                    <th scope="col" class="cell-num">P. unitaire</th>
+                    <th scope="col" class="cell-num">Montant</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="l : ${commande.lignes}">
+                    <td>
+                        <div class="cell-primary cell-mono" th:text="${l.produitCode}">CODE</div>
+                        <div class="text-muted" th:text="${l.produitDesignation}">Désignation</div>
+                    </td>
+                    <td class="text-muted">
+                        <span th:if="${l.taille != null}" th:text="'Taille ' + ${l.taille}"></span>
+                        <span th:if="${l.couleur != null}" th:text="' · ' + ${l.couleur}"></span>
+                        <span th:if="${l.taille == null and l.couleur == null}">—</span>
+                    </td>
+                    <td class="cell-num tabular" th:text="${l.quantite}">0</td>
+                    <td class="cell-num tabular cell-primary" th:text="${l.quantiteProduite}">0</td>
+                    <td class="cell-num tabular text-muted" th:text="${l.quantiteRestante}">0</td>
+                    <td class="cell-num tabular" th:text="${l.prixUnitaire} + ' DT'">0</td>
+                    <td class="cell-num tabular" th:text="${l.montant} + ' DT'">0</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ============ Workflow ============ -->
+    <section class="card">
+        <div class="card__header">
+            <h3 class="card__title">Workflow de production</h3>
+            <a class="btn btn--ghost btn--sm" th:href="@{'/commandes/' + ${commande.id} + '/production'}"
+               sec:authorize="hasAnyRole('ADMIN','MANAGER','OPERATOR')">Ouvrir</a>
+        </div>
+        <div class="card__body">
+            <ol class="stepper">
+                <li class="stepper__step"
+                    th:each="e, it : ${commande.etapes}"
+                    th:classappend="${e.statut.stepperClass}">
+                    <span class="stepper__marker" aria-hidden="true" th:text="${it.index} + 1">1</span>
+                    <span class="stepper__name" th:text="${e.typeLibelle}">Étape</span>
+                    <span class="stepper__meta">
+                        <span th:text="${e.statut}">STATUT</span>
+                        <span th:if="${e.responsableNom != null}" th:text="${e.responsableNom}"></span>
+                    </span>
+                </li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- ============ Contrôle qualité ============ -->
+    <section class="card" th:if="${commande.controleQualite != null}">
+        <div class="card__header">
+            <h3 class="card__title">Contrôle qualité</h3>
+            <span class="badge"
+                  th:classappend="${commande.controleQualite.resultat.badgeClass}"
+                  th:text="${commande.controleQualite.resultat}">CONFORME</span>
+        </div>
+        <div class="card__body kv">
+            <div class="kv__item">
+                <span class="kv__label">Date</span>
+                <span class="kv__value"
+                      th:text="${#temporals.format(commande.controleQualite.dateControle, 'dd/MM/yyyy HH:mm')}">-</span>
+            </div>
+            <div class="kv__item">
+                <span class="kv__label">Contrôleur</span>
+                <span class="kv__value" th:text="${commande.controleQualite.controleurNom} ?: '—'">—</span>
+            </div>
+            <div class="kv__item">
+                <span class="kv__label">Quantité contrôlée</span>
+                <span class="kv__value tabular" th:text="${commande.controleQualite.quantiteControlee}">0</span>
+            </div>
+        </div>
+        <div class="card__body" th:if="${commande.controleQualite.pointsNonConformites != null}">
+            <div class="alert alert--error">
+                <svg class="alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+                    <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/>
+                    <path d="M12 9v4M12 17h.01"/>
+                </svg>
+                <span th:text="${commande.controleQualite.pointsNonConformites}"></span>
+            </div>
+        </div>
+    </section>
+
+    <p class="footer-note">
+        <a class="link" th:href="@{/commandes}">← Retour aux commandes</a>
+    </p>
+</main>
+</body>
+</html>

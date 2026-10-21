@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<!--
+  Coquille applicative complète : sidebar + topbar + contenu.
+  Le fragment est posé sur <html> afin que le <head> (styles, titre) et le
+  <script> soient bien inclus dans le document rendu.
+  Signature : page(title, activeMenu, content, subtitle)
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="fr"
+      th:fragment="page(title, activeMenu, content, subtitle)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title th:text="${title} + ' · Textile'">Textile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234f46e5'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='15' font-weight='bold' fill='white' text-anchor='middle'%3ETX%3C/text%3E%3C/svg%3E">
+</head>
+
+<body>
+<div class="app">
+
+    <a class="skip-link" href="#main-content">Aller au contenu principal</a>
+
+    <!-- Voile du tiroir mobile -->
+    <div class="scrim" aria-hidden="true"></div>
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar-nav">
+        <div class="sidebar__brand">
+            <div class="sidebar__logo" aria-hidden="true">TX</div>
+            <div>
+                <div class="sidebar__title">Textile</div>
+                <div class="sidebar__subtitle">Pilotage de production</div>
+            </div>
+        </div>
+
+        <nav class="sidebar__nav" aria-label="Navigation principale">
+            <a class="nav-link" th:href="@{/dashboard}"
+               th:aria-current="${activeMenu == 'dashboard'} ? 'page' : null">
+                <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/>
+                    <rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/>
+                </svg>
+                Tableau de bord
+            </a>
+
+            <div class="sidebar__section-label">Production</div>
+
+            <a class="nav-link" th:href="@{/commandes}"
+               th:aria-current="${activeMenu == 'commandes'} ? 'page' : null">
+                <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/>
+                    <path d="M16 10a4 4 0 0 1-8 0"/>
+                </svg>
+                Commandes
+            </a>
+
+            <a class="nav-link" th:href="@{/commandes/retard}"
+               th:aria-current="${activeMenu == 'retard'} ? 'page' : null">
+                <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+                </svg>
+                Commandes en retard
+            </a>
+
+            <a class="nav-link" th:href="@{/statistiques}"
+               th:aria-current="${activeMenu == 'statistiques'} ? 'page' : null">
+                <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/>
+                </svg>
+                Statistiques
+            </a>
+
+            <div sec:authorize="hasAnyRole('ADMIN','MANAGER')">
+                <div class="sidebar__section-label">Référentiel</div>
+
+                <a class="nav-link" th:href="@{/clients}"
+                   th:aria-current="${activeMenu == 'clients'} ? 'page' : null">
+                    <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                    </svg>
+                    Clients
+                </a>
+
+                <a class="nav-link" th:href="@{/produits}"
+                   th:aria-current="${activeMenu == 'produits'} ? 'page' : null">
+                    <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                        <path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>
+                    </svg>
+                    Produits
+                </a>
+            </div>
+
+            <div sec:authorize="hasRole('ADMIN')">
+                <div class="sidebar__section-label">Administration</div>
+                <a class="nav-link" th:href="@{/admin/utilisateurs}"
+                   th:aria-current="${activeMenu == 'admin'} ? 'page' : null">
+                    <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
+                    </svg>
+                    Utilisateurs
+                </a>
+            </div>
+        </nav>
+
+        <div class="sidebar__footer">
+            Projet 2 · Gestion des commandes textiles
+        </div>
+    </aside>
+
+    <!-- ================= CONTENU ================= -->
+    <div class="main">
+        <header class="topbar">
+            <button class="topbar__burger" type="button" data-drawer-toggle
+                    aria-expanded="false" aria-controls="sidebar-nav" aria-label="Ouvrir la navigation">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                    <path d="M3 6h18M3 12h18M3 18h18"/>
+                </svg>
+            </button>
+
+            <div class="topbar__heading">
+                <h1 class="topbar__title" th:text="${title}">Titre</h1>
+                <p class="topbar__breadcrumb" th:if="${subtitle}" th:text="${subtitle}"></p>
+            </div>
+
+            <div class="topbar__spacer"></div>
+
+            <div class="user-menu" sec:authorize="isAuthenticated()">
+                <div class="user-menu__meta text-right">
+                    <div class="user-menu__name" th:text="${#authentication.name}">utilisateur</div>
+                    <div class="user-menu__role"
+                         th:text="${#authorization.expression('hasRole(''ADMIN'')') ? 'Administrateur'
+                                : (#authorization.expression('hasRole(''MANAGER'')') ? 'Gestion'
+                                : (#authorization.expression('hasRole(''OPERATOR'')') ? 'Production' : 'Consultation'))}">
+                        rôle
+                    </div>
+                </div>
+                <div class="avatar" aria-hidden="true"
+                     th:text="${#strings.substring(#authentication.name, 0, 1)}">u</div>
+                <form th:action="@{/logout}" method="post" class="inline-form">
+                    <button type="submit" class="btn btn--ghost btn--sm">Déconnexion</button>
+                </form>
+            </div>
+        </header>
+
+        <!-- Notifications : région live pour les lecteurs d'écran -->
+        <div class="toast-region"
+             th:if="${successMessage != null or errorMessage != null or infoMessage != null}"
+             role="status" aria-live="polite" aria-atomic="true">
+            <div class="alert alert--success" th:if="${successMessage}">
+                <svg class="alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M20 6 9 17l-5-5"/>
+                </svg>
+                <span th:text="${successMessage}">Succès</span>
+                <button type="button" class="alert__close" aria-label="Fermer la notification">&times;</button>
+            </div>
+            <div class="alert alert--error" th:if="${errorMessage}" role="alert">
+                <svg class="alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+                </svg>
+                <span th:text="${errorMessage}">Erreur</span>
+                <button type="button" class="alert__close" aria-label="Fermer la notification">&times;</button>
+            </div>
+            <div class="alert alert--info" th:if="${infoMessage}">
+                <svg class="alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/>
+                </svg>
+                <span th:text="${infoMessage}">Information</span>
+                <button type="button" class="alert__close" aria-label="Fermer la notification">&times;</button>
+            </div>
+        </div>
+
+        <main class="content" id="main-content" tabindex="-1">
+            <div th:replace="${content}">Contenu</div>
+        </main>
+
+        <footer class="footer-note">
+            Projet 2 · Système de gestion de commandes — entreprise textile
+        </footer>
+    </div>
+</div>
+
+<script th:src="@{/js/app.js}" defer></script>
+</body>
+</html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Tableau de bord', 'dashboard', ~{::main}, 'Vue d’ensemble de l’atelier')}">
+<body>
+<main class="stack">
+
+    <!-- ============ Indicateurs ============ -->
+    <section class="kpi-grid" aria-label="Indicateurs clés">
+        <article class="kpi">
+            <div class="kpi__head">
+                <span class="kpi__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/>
+                    </svg>
+                </span>
+                <span class="kpi__label">Commandes totales</span>
+            </div>
+            <div class="kpi__value tabular" th:text="${dashboard.totalCommandes}">0</div>
+        </article>
+
+        <article class="kpi">
+            <div class="kpi__head">
+                <span class="kpi__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                </span>
+                <span class="kpi__label">En production</span>
+            </div>
+            <div class="kpi__value tabular" th:text="${dashboard.commandesEnProduction}">0</div>
+        </article>
+
+        <article class="kpi kpi--danger">
+            <div class="kpi__head">
+                <span class="kpi__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+                    </svg>
+                </span>
+                <span class="kpi__label">En retard</span>
+            </div>
+            <div class="kpi__value tabular" th:text="${dashboard.commandesEnRetard}">0</div>
+        </article>
+
+        <article class="kpi kpi--warning">
+            <div class="kpi__head">
+                <span class="kpi__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m13 2-9 12h7l-1 8 9-12h-7l1-8Z"/>
+                    </svg>
+                </span>
+                <span class="kpi__label">Urgentes</span>
+            </div>
+            <div class="kpi__value tabular" th:text="${dashboard.commandesUrgent}">0</div>
+        </article>
+
+        <article class="kpi kpi--success">
+            <div class="kpi__head">
+                <span class="kpi__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 6 9 17l-5-5"/>
+                    </svg>
+                </span>
+                <span class="kpi__label">Livrées</span>
+            </div>
+            <div class="kpi__value tabular" th:text="${dashboard.commandesLivrees}">0</div>
+        </article>
+
+        <article class="kpi kpi--success">
+            <div class="kpi__head">
+                <span class="kpi__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                </span>
+                <span class="kpi__label">CA livré</span>
+            </div>
+            <div class="kpi__value tabular" th:text="${dashboard.chiffreAffairesLivree} + ' DT'">0</div>
+        </article>
+
+        <article class="kpi">
+            <div class="kpi__head">
+                <span class="kpi__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/>
+                    </svg>
+                </span>
+                <span class="kpi__label">Conformité qualité</span>
+            </div>
+            <div class="kpi__value tabular" th:text="${dashboard.tauxConformite} + ' %'">0 %</div>
+        </article>
+
+        <article class="kpi">
+            <div class="kpi__head">
+                <span class="kpi__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/>
+                    </svg>
+                </span>
+                <span class="kpi__label">Délai moyen</span>
+            </div>
+            <div class="kpi__value tabular" th:text="${dashboard.delaiMoyenLivraisonJours} + ' j'">0 j</div>
+        </article>
+    </section>
+
+    <!-- ============ Répartition + actions ============ -->
+    <section class="grid-2">
+        <div class="card">
+            <div class="card__header">
+                <h2 class="card__title">Répartition par statut</h2>
+                <span class="badge badge--muted" th:text="${dashboard.totalCommandes} + ' au total'">0</span>
+            </div>
+            <div class="card__body stack stack--sm">
+                <div class="row row--between" th:each="entry : ${dashboard.repartitionParStatut}">
+                    <span class="badge"
+                          th:classappend="${entry.key.badgeClass}"
+                          th:text="${entry.key}">STATUT</span>
+                    <div class="meter">
+                        <div class="meter__track" role="img"
+                             th:aria-label="${entry.key} + ' : ' + ${entry.value} + ' commandes'">
+                            <div class="meter__fill meter__fill--success"
+                                 th:if="${entry.key.name() == 'LIVREE'}"
+                                 th:style="'width:' + ${dashboard.totalCommandes == 0 ? 0 : entry.value * 100 / dashboard.totalCommandes} + '%'"></div>
+                            <div class="meter__fill"
+                                 th:unless="${entry.key.name() == 'LIVREE'}"
+                                 th:style="'width:' + ${dashboard.totalCommandes == 0 ? 0 : entry.value * 100 / dashboard.totalCommandes} + '%'"></div>
+                        </div>
+                        <span class="meter__value tabular" th:text="${entry.value}">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card__header">
+                <h2 class="card__title">Raccourcis</h2>
+            </div>
+            <div class="card__body stack stack--sm">
+                <a class="btn btn--secondary btn--block" th:href="@{/commandes/nouvelle}"
+                   sec:authorize="hasAnyRole('ADMIN','MANAGER')">Créer une commande</a>
+                <a class="btn btn--secondary btn--block" th:href="@{/commandes/retard}">
+                    Voir les commandes en retard
+                </a>
+                <a class="btn btn--secondary btn--block" th:href="@{/commandes}">Parcourir les commandes</a>
+                <a class="btn btn--secondary btn--block" th:href="@{/clients}" sec:authorize="hasAnyRole('ADMIN','MANAGER')">
+                    Gérer les clients
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ Commandes urgentes ============ -->
+    <section class="card">
+        <div class="card__header">
+            <h2 class="card__title">Commandes urgentes</h2>
+            <a class="btn btn--ghost btn--sm" th:href="@{/commandes(priorite=URGENTE)}">Tout voir</a>
+        </div>
+
+        <div class="empty" th:if="${#lists.isEmpty(dashboard.commandesPrioritaires)}">
+            <div class="empty__icon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 6 9 17l-5-5"/>
+                </svg>
+            </div>
+            <p class="empty__title">Aucune commande urgente</p>
+            <p>Le planning ne comporte aucune commande à priorité haute.</p>
+        </div>
+
+        <div class="table-scroll" th:unless="${#lists.isEmpty(dashboard.commandesPrioritaires)}">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Numéro</th>
+                    <th scope="col">Client</th>
+                    <th scope="col">Priorité</th>
+                    <th scope="col">Livraison prévue</th>
+                    <th scope="col">Étape courante</th>
+                    <th scope="col">Avancement</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${dashboard.commandesPrioritaires}">
+                    <td><a class="link" th:href="@{'/commandes/' + ${c.id}}" th:text="${c.numero}">CMD</a></td>
+                    <td th:text="${c.clientNom}">Client</td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${c.priorite.badgeClass}">
+                            <span class="badge__dot" aria-hidden="true"></span>
+                            <span th:text="${c.priorite}">URGENTE</span>
+                        </span>
+                    </td>
+                    <td class="tabular" th:text="${#temporals.format(c.dateLivraisonPrevue, 'dd/MM/yyyy')}">date</td>
+                    <td th:text="${c.etapeCourante} ?: 'Terminée'">-</td>
+                    <td>
+                        <div class="meter">
+                            <div class="meter__track" role="img"
+                                 th:aria-label="'Avancement ' + ${c.quantiteProduiteTotale} + ' sur ' + ${c.quantiteTotale}">
+                                <div class="meter__fill"
+                                     th:style="'width:' + ${c.quantiteTotale == 0 ? 0 : c.quantiteProduiteTotale * 100 / c.quantiteTotale} + '%'"></div>
+                            </div>
+                            <span class="meter__value tabular"
+                                  th:text="${c.quantiteProduiteTotale} + '/' + ${c.quantiteTotale}">0/0</span>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ============ Commandes en retard ============ -->
+    <section class="card">
+        <div class="card__header">
+            <h2 class="card__title">Commandes en retard</h2>
+            <a class="btn btn--ghost btn--sm" th:href="@{/commandes/retard}">Tout voir</a>
+        </div>
+
+        <div class="empty" th:if="${#lists.isEmpty(dashboard.commandesEnRetardListe)}">
+            <div class="empty__icon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+                </svg>
+            </div>
+            <p class="empty__title">Aucun retard</p>
+            <p>Toutes les dates de livraison prévues sont respectées.</p>
+        </div>
+
+        <div class="table-scroll" th:unless="${#lists.isEmpty(dashboard.commandesEnRetardListe)}">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Numéro</th>
+                    <th scope="col">Client</th>
+                    <th scope="col">Livraison prévue</th>
+                    <th scope="col">Retard</th>
+                    <th scope="col">Étape courante</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${dashboard.commandesEnRetardListe}" class="is-alert">
+                    <td><a class="link" th:href="@{'/commandes/' + ${c.id}}" th:text="${c.numero}">CMD</a></td>
+                    <td th:text="${c.clientNom}">Client</td>
+                    <td class="tabular" th:text="${#temporals.format(c.dateLivraisonPrevue, 'dd/MM/yyyy')}">date</td>
+                    <td><span class="badge badge--danger" th:text="${c.retardJours} + ' j'">+0 j</span></td>
+                    <td th:text="${c.etapeCourante} ?: 'Terminée'">-</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

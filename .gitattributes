@@ -1,0 +1,9 @@
+# Normalisation generale : LF dans le depot, conversion automatique a l'ecriture.
+* text=auto eol=lf
+
+# Scripts Windows : CRLF obligatoire dans la copie de travail.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Script de lancement Maven (Linux/macOS) : LF strict.
+mvnw text eol=lf

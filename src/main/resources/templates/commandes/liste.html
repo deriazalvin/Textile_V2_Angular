@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Commandes', 'commandes', ~{::main}, 'Suivi des bons de commande')}">
+<body>
+<main class="stack">
+
+    <!-- ============ En-tête ============ -->
+    <div class="page-head">
+        <div>
+            <h2 class="page-head__title">Commandes</h2>
+            <p class="page-head__sub" th:text="'Page ' + ${commandes.page + 1} + ' · '
+                    + ${commandes.totalElements} + ' commande(s)'">0 commande(s)</p>
+        </div>
+        <div class="page-head__actions">
+            <a class="btn btn--primary" th:href="@{/commandes/nouvelle}"
+               sec:authorize="hasAnyRole('ADMIN','MANAGER')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+                    <path d="M12 5v14M5 12h14"/>
+                </svg>
+                Nouvelle commande
+            </a>
+        </div>
+    </div>
+
+    <!-- ============ Filtres ============ -->
+    <form class="filters" method="get" th:action="@{/commandes}" role="search">
+        <div class="field" style="margin:0">
+            <label class="field__label" for="search">Recherche</label>
+            <input class="input" type="search" id="search" name="search" th:value="${search}"
+                   placeholder="Numéro ou client">
+        </div>
+
+        <div class="field" style="margin:0">
+            <label class="field__label" for="statut">Statut</label>
+            <select class="select" id="statut" name="statut">
+                <option value="">Tous</option>
+                <option th:each="s : ${statuts}" th:value="${s}" th:text="${s}"
+                        th:selected="${s == statut}">STATUT</option>
+            </select>
+        </div>
+
+        <div class="field" style="margin:0">
+            <label class="field__label" for="priorite">Priorité</label>
+            <select class="select" id="priorite" name="priorite">
+                <option value="">Toutes</option>
+                <option th:each="p : ${priorites}" th:value="${p}" th:text="${p}"
+                        th:selected="${p == priorite}">PRIORITE</option>
+            </select>
+        </div>
+
+        <div class="filters__actions">
+            <label class="checkbox" style="height:var(--control-md)">
+                <input type="checkbox" name="delayed" value="true" th:checked="${delayed == true}">
+                En retard
+            </label>
+            <button type="submit" class="btn btn--secondary">Filtrer</button>
+            <a class="btn btn--ghost" th:href="@{/commandes}">Réinitialiser</a>
+        </div>
+    </form>
+
+    <!-- ============ Résultat ============ -->
+    <div th:if="${#lists.isEmpty(commandes.content)}"
+         th:replace="~{fragments/pagination :: vide('Aucune commande',
+                'Aucune commande ne correspond aux filtres sélectionnés.')}"></div>
+
+    <div class="table-wrap" th:unless="${#lists.isEmpty(commandes.content)}">
+        <div class="table-scroll">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Numéro</th>
+                    <th scope="col">Client</th>
+                    <th scope="col">Livraison prévue</th>
+                    <th scope="col">Priorité</th>
+                    <th scope="col">Statut</th>
+                    <th scope="col">Étape courante</th>
+                    <th scope="col">Avancement</th>
+                    <th scope="col" class="cell-num">Montant</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${commandes.content}" th:attr="class=${c.enRetard ? 'is-alert' : ''}">
+                    <td>
+                        <a class="link cell-mono" th:href="@{'/commandes/' + ${c.id}}" th:text="${c.numero}">CMD</a>
+                    </td>
+                    <td class="cell-primary" th:text="${c.clientNom}">Client</td>
+                    <td>
+                        <span class="tabular" th:text="${#temporals.format(c.dateLivraisonPrevue, 'dd/MM/yyyy')}">date</span>
+                        <span class="badge badge--danger" th:if="${c.enRetard}"
+                              th:text="'+' + ${c.retardJours} + ' j'">+0 j</span>
+                    </td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${c.priorite.badgeClass}"
+                              th:text="${c.priorite}">NORMALE</span>
+                    </td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${c.statut.badgeClass}"
+                              th:text="${c.statut}">STATUT</span>
+                    </td>
+                    <td class="text-muted" th:text="${c.etapeCourante} ?: 'Terminée'">-</td>
+                    <td>
+                        <div class="meter">
+                            <div class="meter__track" role="img"
+                                 th:aria-label="'Avancement : ' + ${c.quantiteProduiteTotale} + ' sur ' + ${c.quantiteTotale} + ' pièces'">
+                                <div class="meter__fill meter__fill--success"
+                                     th:if="${c.quantiteProduiteTotale >= c.quantiteTotale}"
+                                     th:style="'width:' + ${c.quantiteTotale == 0 ? 0 : c.quantiteProduiteTotale * 100 / c.quantiteTotale} + '%'"></div>
+                            <div class="meter__fill"
+                                     th:unless="${c.quantiteProduiteTotale >= c.quantiteTotale}"
+                                     th:style="'width:' + ${c.quantiteTotale == 0 ? 0 : c.quantiteProduiteTotale * 100 / c.quantiteTotale} + '%'"></div>
+                            </div>
+                            <span class="meter__value tabular"
+                                  th:text="${c.quantiteProduiteTotale} + '/' + ${c.quantiteTotale}">0/0</span>
+                        </div>
+                    </td>
+                    <td class="cell-num tabular" th:text="${c.montantTotal} + ' DT'">0</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/pagination :: pagination}"></div>
+</main>
+</body>
+</html>
