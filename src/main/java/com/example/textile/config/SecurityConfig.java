@@ -37,6 +37,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Pour admin
                 .requestMatchers("/api/users/**").hasRole("ADMIN")
+                // Inscription publique (compte de consultation uniquement).
+                .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                 // @Toutlemonde
                 .requestMatchers(HttpMethod.GET, "/api/**")
                         .hasAnyRole("ADMIN", "MANAGER", "OPERATOR", "USER")
