@@ -1,0 +1,125 @@
+<main class="auth">
+  <!-- Panneau de présentation -->
+  <section class="auth__aside" aria-hidden="true">
+    <h2>Rejoignez<br />l’atelier.</h2>
+    <p>
+      Créez votre compte de consultation pour suivre l’avancement des commandes
+      et consulter les statistiques de production.
+    </p>
+
+    <div class="auth__feature">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 6 9 17l-5-5" />
+      </svg>
+      <span>Accès en lecture aux commandes et à leur avancement</span>
+    </div>
+    <div class="auth__feature">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 6 9 17l-5-5" />
+      </svg>
+      <span>Consultation des indicateurs et des statistiques</span>
+    </div>
+    <div class="auth__feature">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 6 9 17l-5-5" />
+      </svg>
+      <span>Les droits d’administration restent gérés par un administrateur</span>
+    </div>
+  </section>
+
+  <!-- Formulaire -->
+  <section class="auth__panel">
+    <div class="auth__form">
+      <div class="auth__brand">
+        <div class="sidebar__logo" aria-hidden="true">TX</div>
+        <div>
+          <div class="auth__brand-name">Textile</div>
+          <div class="auth__brand-sub">Pilotage de production</div>
+        </div>
+      </div>
+
+      <h1 class="auth__title">Créer un compte</h1>
+      <p class="auth__sub">
+        Un compte de consultation sera créé. Les comptes à privilèges sont gérés
+        par l’administrateur.
+      </p>
+
+      <div *ngIf="erreur() as message" class="alert alert--error" role="alert">
+        <svg class="alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 8v4M12 16h.01" />
+        </svg>
+        <span>{{ message }}</span>
+      </div>
+
+      <form [formGroup]="formulaire" (ngSubmit)="sInscrire()" novalidate>
+        <div class="field">
+          <label class="field__label" for="displayName">Nom affiché</label>
+          <input
+            class="input"
+            type="text"
+            id="displayName"
+            formControlName="displayName"
+            autocomplete="name"
+            placeholder="Facultatif"
+          />
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="username">Identifiant</label>
+          <input
+            class="input"
+            type="text"
+            id="username"
+            formControlName="username"
+            autocomplete="username"
+            autofocus
+          />
+          <p class="field__error" *ngIf="champInvalide('username')">
+            3 caractères minimum.
+          </p>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="password">Mot de passe</label>
+          <input
+            class="input"
+            type="password"
+            id="password"
+            formControlName="password"
+            autocomplete="new-password"
+          />
+          <p class="field__error" *ngIf="champInvalide('password')">
+            6 caractères minimum.
+          </p>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="confirmation">Confirmer le mot de passe</label>
+          <input
+            class="input"
+            type="password"
+            id="confirmation"
+            formControlName="confirmation"
+            autocomplete="new-password"
+          />
+          <p class="field__error" *ngIf="champInvalide('confirmation')">
+            Les mots de passe ne correspondent pas.
+          </p>
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--lg btn--block" [disabled]="chargement()">
+          {{ chargement() ? 'Création…' : 'Créer mon compte' }}
+        </button>
+      </form>
+
+      <p class="auth__switch">
+        Déjà un compte ? <a routerLink="/login">Se connecter</a>
+      </p>
+    </div>
+  </section>
+</main>

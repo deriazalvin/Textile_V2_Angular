@@ -1,0 +1,29 @@
+<div class="carte-client">
+    <div *ngIf="!modeEdition">
+        <h3>{{client.nom}}</h3>
+        <p>{{client.email}}</p>
+        <p>{{client.telephone}}</p>
+        <button (click)="basculerEdition()">Modifier</button>
+    </div>
+    <div *ngIf = "modeEdition">
+        <label> NOM
+            <input [(ngModel)] = "client.nom">
+        </label>
+        <label> TÉLÉPHONE
+            <input [(ngModel)] = "client.telephone">
+        </label>
+        <label> EMAIL
+            <input [(ngModel)] = "client.email">
+        </label>
+        <label> VILLE
+            <input [(ngModel)] = "client.ville">
+        </label>
+        <label> COMMANDES
+            <input [(ngModel)] = "client.commandes">
+        </label>
+        <label> État
+            <input [(ngModel)] = "client.status">
+        </label>
+        <button (click) = "enregistrer()">Enregistrer</button>
+    </div>
+</div>

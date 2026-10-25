@@ -1,0 +1,112 @@
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="app">
+  <!-- ---------------------------------------------------------- Barre latérale -->
+  <aside class="sidebar" id="navigation-principale" aria-label="Navigation principale">
+    <div class="sidebar__brand">
+      <div class="sidebar__logo" aria-hidden="true">TX</div>
+      <div>
+        <div class="sidebar__title">Textile</div>
+        <div class="sidebar__subtitle">Pilotage de production</div>
+      </div>
+    </div>
+
+    <nav class="sidebar__nav">
+      <ng-container *ngFor="let groupe of groupes()">
+        <div class="sidebar__section-label">{{ groupe.libelle }}</div>
+        <a
+          *ngFor="let lien of groupe.liens"
+          class="nav-link"
+          [routerLink]="lien.chemin"
+          routerLinkActive="nav-link--actif"
+          ariaCurrentWhenActive="page"
+          (click)="fermerMenu()"
+        >
+          <svg
+            class="nav-link__icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path [attr.d]="lien.icone" />
+          </svg>
+          <span>{{ lien.libelle }}</span>
+        </a>
+      </ng-container>
+    </nav>
+
+    <div class="sidebar__footer">
+      <div>Textile · v1.0</div>
+      <div>Angular 22</div>
+    </div>
+  </aside>
+
+  <div class="scrim" (click)="fermerMenu()"></div>
+
+  <!-- --------------------------------------------------------- Zone principale -->
+  <div class="main">
+    <header class="topbar">
+      <button
+        type="button"
+        class="topbar__burger"
+        (click)="basculerMenu()"
+        [attr.aria-expanded]="menuOuvert()"
+        aria-controls="navigation-principale"
+        aria-label="Ouvrir la navigation"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M3 6h18M3 12h18M3 18h18" />
+        </svg>
+      </button>
+
+      <div class="topbar__heading">
+        <div class="topbar__title">{{ titrePage }}</div>
+        <div class="topbar__breadcrumb">Textile / {{ titrePage }}</div>
+      </div>
+
+      <div class="topbar__spacer"></div>
+
+      <div class="user-menu" *ngIf="utilisateur() as utilisateur">
+        <div class="avatar" aria-hidden="true">{{ initiales() }}</div>
+        <div class="user-menu__meta">
+          <div class="user-menu__name">{{ utilisateur.displayName }}</div>
+          <div class="user-menu__role">{{ libelleRole() }}</div>
+        </div>
+        <button
+          type="button"
+          class="btn btn--ghost btn--icon btn--sm"
+          (click)="deconnecter()"
+          title="Se déconnecter"
+          aria-label="Se déconnecter"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="content" id="contenu">
+      <router-outlet />
+    </main>
+  </div>
+</div>

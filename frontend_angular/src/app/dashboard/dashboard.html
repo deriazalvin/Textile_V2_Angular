@@ -1,0 +1,10 @@
+<h1>Tableau de bord</h1>
+<div class="cartes">
+  @for (indicateur of indicateurs; track indicateur.libelle) {
+    <div class="carte">
+      <span class="icone">{{ indicateur.icone }}</span>
+      <span class="valeur">{{ indicateur.valeur }}</span>
+      <span class="libelle">{{ indicateur.libelle }}</span>
+    </div>
+  }
+</div>

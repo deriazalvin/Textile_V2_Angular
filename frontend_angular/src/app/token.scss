@@ -1,0 +1,207 @@
+/* =========================================================================
+   TEXTILE — Design tokens
+   3 niveaux : primitives (valeurs brutes) → sémantique (rôles) → composants.
+   Aucun composant ne doit référencer une primitive directement.
+   ========================================================================= */
+
+/* ---------------------------------------------------------------- 1. PRIMITIVES */
+:root {
+    /* Rampe indigo — couleur de marque */
+    --indigo-50:  #eef2ff;
+    --indigo-100: #e0e7ff;
+    --indigo-200: #c7d2fe;
+    --indigo-300: #a5b4fc;
+    --indigo-400: #818cf8;
+    --indigo-500: #6366f1;
+    --indigo-600: #4f46e5;
+    --indigo-700: #4338ca;
+    --indigo-800: #3730a3;
+    --indigo-900: #312e81;
+
+    /* Rampe neutres (slate) */
+    --slate-50:  #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-300: #cbd5e1;
+    --slate-400: #94a3b8;
+    --slate-500: #64748b;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1e293b;
+    --slate-900: #0f172a;
+
+    /* Rampe rouge */
+    --red-50:  #fef2f2;
+    --red-100: #fee2e2;
+    --red-200: #fecaca;
+    --red-500: #ef4444;
+    --red-600: #dc2626;
+    --red-700: #b91c1c;
+
+    /* Rampe émeraude */
+    --emerald-50:  #ecfdf5;
+    --emerald-100: #d1fae5;
+    --emerald-200: #a7f3d0;
+    --emerald-600: #059669;
+    --emerald-700: #047857;
+
+    /* Rampe ambre */
+    --amber-50:  #fffbeb;
+    --amber-100: #fef3c7;
+    --amber-200: #fde68a;
+    --amber-600: #d97706;
+    --amber-700: #b45309;
+
+    /* Rampe cyan (accent secondaire / workflow) */
+    --cyan-50:  #ecfeff;
+    --cyan-100: #cffafe;
+    --cyan-600: #0891b2;
+    --cyan-700: #0e7490;
+
+    /* Échelle d'espacement — base 4px */
+    --space-0: 0;
+    --space-1: 0.25rem;   /*  4px */
+    --space-2: 0.5rem;    /*  8px */
+    --space-3: 0.75rem;   /* 12px */
+    --space-4: 1rem;      /* 16px */
+    --space-5: 1.5rem;    /* 24px */
+    --space-6: 2rem;      /* 32px */
+    --space-7: 3rem;      /* 48px */
+    --space-8: 4rem;      /* 64px */
+
+    /* Typographie */
+    --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+
+    --text-xs:   0.75rem;
+    --text-sm:   0.8125rem;
+    --text-base: 0.9375rem;
+    --text-md:   1.0625rem;
+    --text-lg:   1.25rem;
+    --text-xl:   1.5rem;
+    --text-2xl:  1.875rem;
+    --text-3xl:  2.25rem;
+
+    --leading-tight: 1.2;
+    --leading-normal: 1.55;
+
+    --weight-normal: 400;
+    --weight-medium: 500;
+    --weight-semibold: 600;
+    --weight-bold: 700;
+
+    /* Rayons */
+    --radius-xs: 4px;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 20px;
+    --radius-full: 999px;
+
+    /* Ombres */
+    --shadow-xs: 0 1px 2px rgba(15, 23, 42, .06);
+    --shadow-sm: 0 1px 3px rgba(15, 23, 42, .08), 0 1px 2px rgba(15, 23, 42, .04);
+    --shadow-md: 0 4px 12px rgba(15, 23, 42, .08);
+    --shadow-lg: 0 12px 28px rgba(15, 23, 42, .12);
+    --shadow-focus: 0 0 0 3px var(--indigo-200);
+
+    /* Transitions */
+    --ease: cubic-bezier(.4, 0, .2, 1);
+    --duration-fast: 120ms;
+    --duration: 200ms;
+
+    /* Hauteurs de composants */
+    --control-sm: 2rem;
+    --control-md: 2.5rem;
+    --control-lg: 3rem;
+    --sidebar-width: 260px;
+    --topbar-height: 64px;
+}
+
+/* ---------------------------------------------------------------- 2. SÉMANTIQUE */
+:root {
+    color-scheme: light;
+
+    --bg-app: var(--slate-100);
+    --bg-surface: #ffffff;
+    --bg-surface-alt: var(--slate-50);
+    --bg-surface-inset: var(--slate-100);
+    --bg-sidebar: var(--slate-900);
+
+    --fg-default: var(--slate-800);
+    --fg-strong: var(--slate-900);
+    --fg-muted: var(--slate-600);
+    --fg-subtle: var(--slate-500);
+    --fg-inverted: #ffffff;
+
+    --primary: var(--indigo-600);
+    --primary-hover: var(--indigo-700);
+    --primary-active: var(--indigo-800);
+    --primary-fg: #ffffff;
+    --primary-soft-bg: var(--indigo-50);
+    --primary-soft-fg: var(--indigo-800);
+    --primary-border: var(--indigo-200);
+
+    --danger: var(--red-600);
+    --danger-hover: var(--red-700);
+    --danger-fg: #ffffff;
+    --danger-soft-bg: var(--red-50);
+    --danger-soft-fg: var(--red-700);
+    --danger-border: var(--red-200);
+
+    --success: var(--emerald-700);
+    --success-fg: #ffffff;
+    --success-soft-bg: var(--emerald-50);
+    --success-soft-fg: var(--emerald-700);
+    --success-border: var(--emerald-200);
+
+    --warning: var(--amber-700);
+    --warning-soft-bg: var(--amber-50);
+    --warning-soft-fg: var(--amber-700);
+    --warning-border: var(--amber-200);
+
+    --info-soft-bg: var(--cyan-50);
+    --info-soft-fg: var(--cyan-700);
+    --info-border: var(--cyan-100);
+
+    --border-subtle: var(--slate-200);
+    --border-default: var(--slate-300);
+    --border-strong: var(--slate-400);
+
+    --ring: var(--indigo-500);
+    --ring-offset: #ffffff;
+
+    --sidebar-fg: var(--slate-300);
+    --sidebar-fg-strong: #ffffff;
+    --sidebar-active-bg: var(--indigo-600);
+}
+
+/* ---------------------------------------------------------------- 3. COMPOSANTS */
+:root {
+    --btn-radius: var(--radius-md);
+    --btn-font-weight: var(--weight-semibold);
+    --btn-border-width: 1px;
+
+    --input-radius: var(--radius-md);
+    --input-bg: var(--bg-surface);
+    --input-border: var(--border-default);
+    --input-border-hover: var(--border-strong);
+    --input-fg: var(--fg-default);
+    --input-placeholder: var(--slate-400);
+
+    --card-radius: var(--radius-lg);
+    --card-border: var(--border-subtle);
+    --card-shadow: var(--shadow-xs);
+
+    --table-radius: var(--radius-lg);
+    --table-header-bg: var(--slate-50);
+    --table-row-hover: var(--slate-50);
+
+    --badge-radius: var(--radius-full);
+    --badge-font-size: var(--text-xs);
+    --badge-font-weight: var(--weight-semibold);
+    --badge-padding-y: var(--space-1);
+    --badge-padding-x: var(--space-3);
+
+    --stepper-radius: var(--radius-lg);
+}
