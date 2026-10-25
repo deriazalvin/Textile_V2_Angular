@@ -48,3 +48,6 @@ src/main/resources/application-*.properties
 .DS_Store
 .idea/workspace.xml
 
+### Notes locales (non publiees) ###
+/TODO_LOCAL.md
+
